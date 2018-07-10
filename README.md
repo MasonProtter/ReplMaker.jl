@@ -5,10 +5,14 @@ A user of this package will be required to give a function that parses code from
 implemented and turns it into julia code which is then executed by julia. LangKit will then create a repl mode where end users 
 just type code from the implemented language and have it be parsed into julia code automatically. 
 
+My hope is for this to be useful to someone who implements a full language or DSL in julia that uses syntax not supported by julia's parser and doesn't want to deal with the headache of making their own repl mode. 
+
 To use this pacakge,just
 ```julia
 Pkg.clone("git@github.com:MasonProtter/ReplMaker.jl.git")
 ```
+
+The code here is mostly just a slightly massaged version of that written by Michael Hatherly for [LispREPL](https://github.com/swadey/LispREPL.jl) under MIT license. 
 
 # Example
 Suppose we want to make a very simple repl mode which just takes whatever input we provide and returns its
@@ -46,4 +50,3 @@ parser> 1 + 1
 parser> x ^ 2 + 5
 :(x ^ 2 + 5)
 ```
-

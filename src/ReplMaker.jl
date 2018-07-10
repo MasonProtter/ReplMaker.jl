@@ -15,7 +15,8 @@ export initrepl
                   repl = Base.active_repl,
                   mode_name = :mylang,
                   valid_input_checker::Function = (s -> true),
-                  completion_provider = REPL.REPLCompletionProvider()
+                  completion_provider = REPL.REPLCompletionProvider(),
+                  startup_text=true
                   )
 creates a custom repl mode which takes in code and parses it according to whatever parsing function you 
 provide in the argument `parser`. Choose which key initializes the repl mode with `start_key`, the name of 
@@ -30,7 +31,8 @@ function initrepl(parser::Function;
                   repl = Base.active_repl,
                   mode_name = :mylang,
                   valid_input_checker::Function = (s -> true),
-                  completion_provider = REPL.REPLCompletionProvider()
+                  completion_provider = REPL.REPLCompletionProvider(),
+                  startup_text=true
                   )
 
     color = Base.text_colors[prompt_color]
@@ -79,7 +81,7 @@ function initrepl(parser::Function;
     ])
     julia_mode.keymap_dict = LineEdit.keymap_merge(julia_mode.keymap_dict, lang_keymap)
 
-    println("REPL mode $mode_name initialized. Press $start_key to enter and backspace to exit.")
+    startup_text && println("REPL mode $mode_name initialized. Press $start_key to enter and backspace to exit.")
 
   nothing
 end

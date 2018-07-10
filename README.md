@@ -12,7 +12,7 @@ To use this pacakge
 Pkg.clone("git@github.com:MasonProtter/ReplMaker.jl.git")
 ```
 
-The code here is mostly just a slightly massaged version of that written by Michael Hatherly for [LispREPL](https://github.com/swadey/LispREPL.jl) under MIT license. 
+The code here is mostly just a massaged version of that written by Michael Hatherly for [LispREPL](https://github.com/swadey/LispREPL.jl) under MIT license. 
 
 # Example
 Suppose we want to make a very simple repl mode which just takes whatever input we provide and returns its

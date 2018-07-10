@@ -34,8 +34,8 @@ julia> initrepl(test_parser,
                 prompt_text="parser> ",
                 prompt_color = :blue, 
                 start_key=')', 
-                mode_name="my_mode")
-REPL mode my_mode initialized. Press ) to enter and backspace to exit.
+                mode_name="parser_mode")
+REPL mode parser_mode initialized. Press ) to enter and backspace to exit.
 ```
 
 As instructed, we simply press the `)` key and julia prompt is replaced

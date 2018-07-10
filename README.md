@@ -10,7 +10,7 @@ just type code from the implemented language and have it be parsed into julia co
 Suppose we want to make a very simple repl mode which just takes whatever input we provide and returns its
 quoted `Expr` form. We first make a parsing function,
 
-```julia-repl
+```julia
 julia> using ReplMaker
 
 julia> function test_parser(s)
@@ -21,7 +21,7 @@ test_parser (generic function with 1 method)
 
 Now, we can simply provide that parser to the `initrepl` function
 
-```julia-repl
+```julia
 julia> initrepl(test_parser, 
                 prompt_text="parser> ",
                 prompt_color = :blue, 

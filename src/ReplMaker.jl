@@ -6,23 +6,40 @@ import Base: LineEdit, REPL
 
 export initrepl
 
-function initrepl(parser::Function;
-                  text = "myrepl> ",
-                  text_color = :blue,
+
+"""
+         initrepl(parser;
+                  prompt_text = "myrepl> ",
+                  prompt_color = :blue,
                   start_key = ')',
                   repl = Base.active_repl,
-                  mode_mapping = :mylang,
+                  mode_name = :mylang,
+                  valid_input_checker::Function = (s -> true),
+                  completion_provider = REPL.REPLCompletionProvider()
+                  )
+creates a custom repl mode which takes in code and parses it according to whatever parsing function you 
+provide in the argument `parser`. Choose which key initializes the repl mode with `start_key`, the name of 
+your repl mode with `mode_name` and optionally provide a function which checks if a given repl input is valid
+before parsing with `valid_input_checker`. Autocompletion options are supplied through the argument
+`completion_provider` which defaults to the standard julia REPL TAB completions. 
+"""
+function initrepl(parser::Function;
+                  prompt_text = "myrepl> ",
+                  prompt_color = :blue,
+                  start_key = ')',
+                  repl = Base.active_repl,
+                  mode_name = :mylang,
                   valid_input_checker::Function = (s -> true),
                   completion_provider = REPL.REPLCompletionProvider()
                   )
 
-    color = Base.text_colors[text_color]
+    color = Base.text_colors[prompt_color]
     
     julia_mode = repl.interface.modes[1]
     prefix = repl.hascolor ? color : ""
     suffix = repl.hascolor ? (repl.envcolors ? Base.input_color : repl.input_color) : ""
 
-    lang_mode = LineEdit.Prompt(text;
+    lang_mode = LineEdit.Prompt(prompt_text;
     prompt_prefix    = prefix,
     prompt_suffix    = suffix,
     keymap_func_data = repl,
@@ -34,7 +51,7 @@ function initrepl(parser::Function;
     push!(repl.interface.modes, lang_mode)
 
     hp                     = julia_mode.hist
-    hp.mode_mapping[mode_mapping] = lang_mode
+    hp.mode_mapping[mode_name |> Symbol] = lang_mode
     lang_mode.hist         = hp
 
     search_prompt, skeymap = LineEdit.setup_search_keymap(hp)
@@ -62,7 +79,7 @@ function initrepl(parser::Function;
     ])
     julia_mode.keymap_dict = LineEdit.keymap_merge(julia_mode.keymap_dict, lang_keymap)
 
-    println("REPL mode $mode_mapping initialized. Press $start_key to enter and backspace to exit.")
+    println("REPL mode $mode_name initialized. Press $start_key to enter and backspace to exit.")
 
   nothing
 end

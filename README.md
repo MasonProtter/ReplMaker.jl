@@ -7,7 +7,7 @@ just type code from the implemented language and have it be parsed into julia co
 
 My hope is for this to be useful to someone who implements a full language or DSL in julia that uses syntax not supported by julia's parser and doesn't want to deal with the headache of making their own repl mode. 
 
-To use this pacakge,just
+To use this pacakge
 ```julia
 Pkg.clone("git@github.com:MasonProtter/ReplMaker.jl.git")
 ```

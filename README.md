@@ -5,6 +5,10 @@ A user of this package will be required to give a function that parses code from
 implemented and turns it into julia code which is then executed by julia. LangKit will then create a repl mode where end users 
 just type code from the implemented language and have it be parsed into julia code automatically. 
 
+To use this pacakge,just
+```julia
+Pkg.clone("git@github.com:MasonProtter/ReplMaker.jl.git")
+```
 
 # Example
 Suppose we want to make a very simple repl mode which just takes whatever input we provide and returns its

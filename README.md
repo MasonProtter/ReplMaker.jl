@@ -32,14 +32,14 @@ REPL mode my_mode initialized. Press ) to enter and backspace to exit.
 
 As instructed, we simply press the `)` key and julia prompt is replaced
 ```
-<span style="color:blue">parser> </span> 
+parser>  
 ```
 and as desired, we now can enter julia code and be showed its quoted version.
 ```
-<span style="color:blue">parser> </span> 1 + 1
+parser> 1 + 1
 :(1 + 1)
 
-<span style="color:blue">parser> </span> x ^ 2 + 5
+parser> x ^ 2 + 5
 :(x ^ 2 + 5)
 ```
 

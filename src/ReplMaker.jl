@@ -79,10 +79,13 @@ function initrepl(parser::Function;
         LineEdit.default_keymap,
         LineEdit.escape_defaults,
     ])
+    if start_key in keys(julia_mode.keymap_dict)
+        warn("REPL key '$start_key' overwritten.")
+    end
     julia_mode.keymap_dict = LineEdit.keymap_merge(julia_mode.keymap_dict, lang_keymap)
 
     startup_text && println("REPL mode $mode_name initialized. Press $start_key to enter and backspace to exit.")
-
+    
   nothing
 end
 

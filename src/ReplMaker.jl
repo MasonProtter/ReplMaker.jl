@@ -2,7 +2,8 @@ __precompile__()
 
 module ReplMaker
 
-import Base: LineEdit, REPL
+import REPL
+import REPL.LineEdit
 
 export initrepl
 
@@ -31,7 +32,9 @@ function initrepl(parser::Function;
                   repl = Base.active_repl,
                   mode_name = :mylang,
                   valid_input_checker::Function = (s -> true),
+                  keymap::Dict = REPL.default_keymap_dict,
                   completion_provider = REPL.REPLCompletionProvider(),
+                  sticky = true,
                   startup_text=true
                   )
 
@@ -39,15 +42,15 @@ function initrepl(parser::Function;
     
     julia_mode = repl.interface.modes[1]
     prefix = repl.hascolor ? color : ""
-    suffix = repl.hascolor ? (repl.envcolors ? Base.input_color : repl.input_color) : ""
+    suffix = repl.hascolor ? (repl.envcolors ? Base.input_color : repl.input_color()) : ""
 
     lang_mode = LineEdit.Prompt(prompt_text;
-    prompt_prefix    = prefix,
-    prompt_suffix    = suffix,
-    keymap_func_data = repl,
-    on_enter         = valid_input_checker,
-    complete         = completion_provider,
-    )
+                                prompt_prefix    = prefix,
+                                prompt_suffix    = suffix,
+                                keymap_dict      = keymap,
+                                on_enter         = valid_input_checker,
+                                complete         = completion_provider
+                                )
     lang_mode.on_done = REPL.respond(parser, repl, lang_mode)
 
     push!(repl.interface.modes, lang_mode)

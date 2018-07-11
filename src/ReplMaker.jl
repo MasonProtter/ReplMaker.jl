@@ -32,7 +32,7 @@ function initrepl(parser::Function;
                   repl = Base.active_repl,
                   mode_name = :mylang,
                   valid_input_checker::Function = (s -> true),
-                  keymap::Dict = REPL.default_keymap_dict,
+                  keymap::Dict = REPL.LineEdit.default_keymap_dict,
                   completion_provider = REPL.REPLCompletionProvider(),
                   sticky = true,
                   startup_text=true

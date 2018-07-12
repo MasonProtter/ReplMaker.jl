@@ -2,13 +2,22 @@ __precompile__()
 
 module ReplMaker
 
+
+function warningfun(s)
+    if VERSION >= v"0.7.0-"
+        @warn s
+    else
+        warn(s)
+    end
+end
+
 if VERSION >= v"0.7.0-"
     import REPL
     import REPL.LineEdit
 elseif v"0.6.0-" <= VERSION < v"0.7.0-"
     import Base: LineEdit, REPL
 else
-    warn("Your version of julia may not be supported by ReplMaker.jl")
+    warningfun("Your version of julia may not be supported by ReplMaker.jl")
 end
 
 export initrepl
@@ -109,7 +118,7 @@ function initrepl(parser::Function;
         LineEdit.escape_defaults,
     ])
     if start_key in keys(julia_mode.keymap_dict)
-        warn("REPL key '$start_key' overwritten.")
+        warningfun("REPL key '$start_key' overwritten.")
     end
     julia_mode.keymap_dict = LineEdit.keymap_merge(julia_mode.keymap_dict, lang_keymap)
 

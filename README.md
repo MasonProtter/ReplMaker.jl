@@ -7,10 +7,12 @@ just type code from the implemented language and have it be parsed into julia co
 
 My hope is for this to be useful to someone who implements a full language or DSL in julia that uses syntax not supported by julia's parser and doesn't want to deal with the headache of making their own repl mode. 
 
-To use this pacakge
+To use this pacakge on 0.6:
 ```julia
 Pkg.clone("git@github.com:MasonProtter/ReplMaker.jl.git")
 ```
+
+To use this on 0.7, you'll need to checkout the `develop0.7` branch.
 
 The code here is mostly just a massaged version of that written by Michael Hatherly for [LispREPL](https://github.com/swadey/LispREPL.jl) under MIT license. 
 

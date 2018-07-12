@@ -37,7 +37,6 @@ your repl mode with `mode_name` and optionally provide a function which checks i
 before parsing with `valid_input_checker`. Autocompletion options are supplied through the argument
 `completion_provider` which defaults to the standard julia REPL TAB completions. 
 """
-
 function initrepl(parser::Function;
                   prompt_text = "myrepl> ",
                   prompt_color = :blue,

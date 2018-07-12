@@ -2,30 +2,23 @@ __precompile__()
 
 module ReplMaker
 
-import REPL
-import REPL.LineEdit
+if VERSION >= v"0.7.0-"
+    import REPL
+    import REPL.LineEdit
+elseif v"0.6.0-" <= VERSION < v"0.7.0-"
+    import Base: LineEdit, REPL
+else
+    warn("Your version of julia may not be supported by ReplMaker.jl")
+end
 
 export initrepl
 
 
+
+
 """
-         initrepl(parser;
-                  prompt_text = "myrepl> ",
-                  prompt_color = :blue,
-                  start_key = ')',
-                  repl = Base.active_repl,
-                  mode_name = :mylang,
-                  valid_input_checker::Function = (s -> true),
-                  completion_provider = REPL.REPLCompletionProvider(),
-                  startup_text=true
-                  )
-creates a custom repl mode which takes in code and parses it according to whatever parsing function you 
-provide in the argument `parser`. Choose which key initializes the repl mode with `start_key`, the name of 
-your repl mode with `mode_name` and optionally provide a function which checks if a given repl input is valid
-before parsing with `valid_input_checker`. Autocompletion options are supplied through the argument
-`completion_provider` which defaults to the standard julia REPL TAB completions. 
-"""
-function initrepl(parser::Function;
+```
+         initrepl(parser::Function;
                   prompt_text = "myrepl> ",
                   prompt_color = :blue,
                   start_key = ')',
@@ -37,6 +30,26 @@ function initrepl(parser::Function;
                   sticky = true,
                   startup_text=true
                   )
+```
+creates a custom repl mode which takes in code and parses it according to whatever parsing function you 
+provide in the argument `parser`. Choose which key initializes the repl mode with `start_key`, the name of 
+your repl mode with `mode_name` and optionally provide a function which checks if a given repl input is valid
+before parsing with `valid_input_checker`. Autocompletion options are supplied through the argument
+`completion_provider` which defaults to the standard julia REPL TAB completions. 
+"""
+
+function initrepl(parser::Function;
+                  prompt_text = "myrepl> ",
+                  prompt_color = :blue,
+                  start_key = ')',
+                  repl = Base.active_repl,
+                  mode_name = :mylang,
+                  valid_input_checker::Function = (s -> true),
+                  keymap::Dict = REPL.LineEdit.default_keymap_dict,
+                  completion_provider = REPL.REPLCompletionProvider(),
+                  sticky_mode = true,
+                  startup_text=true
+                  )
 
     color = Base.text_colors[prompt_color]
     
@@ -44,13 +57,27 @@ function initrepl(parser::Function;
     prefix = repl.hascolor ? color : ""
     suffix = repl.hascolor ? (repl.envcolors ? Base.input_color : repl.input_color()) : ""
 
-    lang_mode = LineEdit.Prompt(prompt_text;
-                                prompt_prefix    = prefix,
-                                prompt_suffix    = suffix,
-                                keymap_dict      = keymap,
-                                on_enter         = valid_input_checker,
-                                complete         = completion_provider
-                                )
+    if VERSION > v"0.7.0-"
+        lang_mode = LineEdit.Prompt(prompt_text;
+                                    prompt_prefix    = prefix,
+                                    prompt_suffix    = suffix,
+                                    keymap_dict      = keymap,
+                                    on_enter         = valid_input_checker,
+                                    complete         = completion_provider,
+                                    sticky           = sticky_mode
+                                    )
+    else
+        lang_mode = LineEdit.Prompt(prompt_text;
+                                    prompt_prefix    = prefix,
+                                    prompt_suffix    = suffix,
+                                    keymap_func_data = repl,
+                                    on_enter         = valid_input_checker,
+                                    complete         = completion_provider,
+                                    keymap_dict      = keymap,
+                                    sticky           = sticky_mode
+                                    )
+    end
+        
     lang_mode.on_done = REPL.respond(parser, repl, lang_mode)
 
     push!(repl.interface.modes, lang_mode)

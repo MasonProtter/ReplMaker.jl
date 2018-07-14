@@ -2,12 +2,12 @@
 # REPLMaker
 The idea here is to make a tool for people making (domain specific) languages in julia. 
 A user of this package will be required to give a function that parses code from whatever langauge the user has 
-implemented and turns it into julia code which is then executed by julia. LangKit will then create a repl mode where end users 
-just type code from the implemented language and have it be parsed into julia code automatically. 
+implemented and turns it into Julia code which is then executed by Julia. LangKit will then create a repl mode where end users 
+just type code from the implemented language and have it be parsed into Julia code automatically. 
 
-My hope is for this to be useful to someone who implements a full language or DSL in julia that uses syntax not supported by julia's parser and doesn't want to deal with the headache of making their own repl mode. 
+My hope is for this to be useful to someone who implements a full language or DSL in Julia that uses syntax not supported by Julia's parser and doesn't want to deal with the headache of making their own REPL mode. 
 
-This package is compatible with versions `0.6+` and `0.7-Beta` of julia. To add it on `0.6`,
+This package is compatible with versions `0.6+` and `0.7-Beta` of Julia. To add it on `0.6`,
 ```
 Pkg.clone("git@github.com:MasonProtter/ReplMaker.jl.git")
 ```
@@ -18,7 +18,7 @@ and on `0.7`
 
 # Examples
 ## Example 1: Expr Mode
-Suppose we want to make a very simple repl mode which just takes whatever input we provide and returns its
+Suppose we want to make a very simple REPL mode which just takes whatever input we provide and returns its
 quoted `Expr` form. We first make a parsing function,
 
 ```julia
@@ -41,11 +41,11 @@ julia> initrepl(parse_to_expr,
 REPL mode Expr_mode initialized. Press ) to enter and backspace to exit.
 ```
 
-As instructed, we simply press the `)` key and julia prompt is replaced
+As instructed, we simply press the `)` key and the `julia>` prompt is replaced
 ```
 Expr>  
 ```
-and as desired, we now can enter julia code and be showed its quoted version.
+and as desired, we now can enter Julia code and be shown its quoted version.
 ```
 Expr> 1 + 1
 :(1 + 1)
@@ -55,7 +55,7 @@ Expr> x ^ 2 + 5
 ```
 
 ## Example 2: Bad Parser Mode
-Lets say we're feeling a bit maniacal and want an insane version of julia where any input has multiplication and addition switched. 
+Lets say we're feeling a bit maniacal and want an insane version of Julia where any input has multiplication and addition switched. 
 
 We first just make a function which takes expressions and if the first argument is `:+` replaces it with `:*` and vice versa. On all other inputs, this function is just an identity operation
 ```julia
@@ -74,11 +74,11 @@ switch_mult_add(s) = s
 ```
 We now just borrow the `postwalk` function from MacroTools and use it in our parsing function to recursively look through and input expression tree and apply `switch_mult_add` and use that parser in a new REPL mode.
 ```julia
-using MacroTools.postwalk
+using MacroTools: postwalk
 
 function bad_julia_parser(s)
     expr = parse(s)
-    postwalk(ex -> switch_mult_add(ex), expr)
+    postwalk(switch_mult_add, expr)
 end
 
 initrepl(bad_julia_parser, 

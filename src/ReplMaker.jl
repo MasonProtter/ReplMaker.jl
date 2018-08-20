@@ -1,5 +1,6 @@
-module ReplMaker
+__precompile__(false)
 
+module ReplMaker
 
 import REPL
 import REPL.LineEdit

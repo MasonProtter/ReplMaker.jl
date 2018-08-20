@@ -1,26 +1,10 @@
 module ReplMaker
 
 
-function warningfun(s)
-    if VERSION >= v"0.7.0-"
-        @warn s
-    else
-        warn(s)
-    end
-end
-
-if VERSION >= v"0.7.0-"
-    import REPL
-    import REPL.LineEdit
-elseif v"0.6.0-" <= VERSION < v"0.7.0-"
-    import Base: LineEdit, REPL
-else
-    warningfun("Your version of julia may not be supported by ReplMaker.jl")
-end
+import REPL
+import REPL.LineEdit
 
 export initrepl
-
-
 
 
 """
@@ -63,26 +47,14 @@ function initrepl(parser::Function;
     prefix = repl.hascolor ? color : ""
     suffix = repl.hascolor ? (repl.envcolors ? Base.input_color : repl.input_color()) : ""
 
-    if VERSION > v"0.7.0-"
-        lang_mode = LineEdit.Prompt(prompt_text;
-                                    prompt_prefix    = prefix,
-                                    prompt_suffix    = suffix,
-                                    keymap_dict      = keymap,
-                                    on_enter         = valid_input_checker,
-                                    complete         = completion_provider,
-                                    sticky           = sticky_mode
-                                    )
-    else
-        lang_mode = LineEdit.Prompt(prompt_text;
-                                    prompt_prefix    = prefix,
-                                    prompt_suffix    = suffix,
-                                    keymap_func_data = repl,
-                                    on_enter         = valid_input_checker,
-                                    complete         = completion_provider,
-                                    keymap_dict      = keymap,
-                                    sticky           = sticky_mode
-                                    )
-    end
+    lang_mode = LineEdit.Prompt(prompt_text;
+                                prompt_prefix    = prefix,
+                                prompt_suffix    = suffix,
+                                keymap_dict      = keymap,
+                                on_enter         = valid_input_checker,
+                                complete         = completion_provider,
+                                sticky           = sticky_mode
+                                )
         
     lang_mode.on_done = REPL.respond(parser, repl, lang_mode)
 
@@ -116,8 +88,9 @@ function initrepl(parser::Function;
         LineEdit.escape_defaults,
     ])
     if start_key in keys(julia_mode.keymap_dict)
-        warningfun("REPL key '$start_key' overwritten.")
+        @warn "REPL key '$start_key' overwritten."
     end
+    
     julia_mode.keymap_dict = LineEdit.keymap_merge(julia_mode.keymap_dict, lang_keymap)
 
     startup_text && println("REPL mode $mode_name initialized. Press $start_key to enter and backspace to exit.")

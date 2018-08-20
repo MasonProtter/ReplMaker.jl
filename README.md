@@ -7,13 +7,9 @@ just type code from the implemented language and have it be parsed into Julia co
 
 My hope is for this to be useful to someone who implements a full language or DSL in Julia that uses syntax not supported by Julia's parser and doesn't want to deal with the headache of making their own REPL mode. 
 
-This package is compatible with versions `0.6+` and `0.7-Beta` of Julia. To add it on `0.6`,
+To add it,
 ```
-Pkg.clone("git@github.com:MasonProtter/ReplMaker.jl.git")
-```
-and on `0.7`
-```
-(v0.7) pkg> add git@github.com:MasonProtter/ReplMaker.jl.git
+pkg> add git@github.com:MasonProtter/ReplMaker.jl.git
 ```
 
 # Examples

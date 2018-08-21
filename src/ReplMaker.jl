@@ -7,7 +7,6 @@ import REPL.LineEdit
 
 export initrepl
 
-
 """
 ```
          initrepl(parser::Function;

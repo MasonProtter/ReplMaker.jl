@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/MasonProtter/ReplMaker.jl.svg?branch=master)](https://travis-ci.org/MasonProtter/ReplMaker.jl)
 
 # REPLMaker
 The idea here is to make a tool for people making (domain specific) languages in julia. 

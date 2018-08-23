@@ -10,7 +10,7 @@ My hope is for this to be useful to someone who implements a full language or DS
 
 To add it,
 ```
-pkg> add git@github.com:MasonProtter/ReplMaker.jl.git
+pkg> add ReplMaker
 ```
 
 # Examples

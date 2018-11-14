@@ -3,7 +3,7 @@
 # REPLMaker
 The idea here is to make a tool for people making (domain specific) languages in julia. 
 A user of this package will be required to give a function that parses code from whatever langauge the user has 
-implemented and turns it into Julia code which is then executed by Julia. LangKit will then create a repl mode where end users 
+implemented and turns it into Julia code which is then executed by Julia. ReplMaker will then create a repl mode where end users 
 just type code from the implemented language and have it be parsed into Julia code automatically. 
 
 My hope is for this to be useful to someone who implements a full language or DSL in Julia that uses syntax not supported by Julia's parser and doesn't want to deal with the headache of making their own REPL mode. 

@@ -22,7 +22,7 @@ quoted `Expr` form. We first make a parsing function,
 julia> using ReplMaker
 
 julia> function parse_to_expr(s)
-           quote parse($s) end
+           quote Meta.parse($s) end
        end
 test_parser (generic function with 1 method)
 ```
@@ -74,7 +74,7 @@ We now just borrow the `postwalk` function from MacroTools and use it in our par
 using MacroTools: postwalk
 
 function bad_julia_parser(s)
-    expr = parse(s)
+    expr = Meta.parse(s)
     postwalk(switch_mult_add, expr)
 end
 

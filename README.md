@@ -52,7 +52,7 @@ Expr> x ^ 2 + 5
 ```
 
 ## Example 2: Bad Parser Mode
-Lets say we're feeling a bit maniacal and want an insane version of Julia where any input has multiplication and addition switched. 
+Lets say we're feeling a bit sneaky and want a version of Julia where any input has multiplication and addition switched. 
 
 We first just make a function which takes expressions and if the first argument is `:+` replaces it with `:*` and vice versa. On all other inputs, this function is just an identity operation
 ```julia

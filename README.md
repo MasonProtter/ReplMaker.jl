@@ -15,6 +15,12 @@ pkg> add ReplMaker
 
 # Examples
 ## Example 1: Expr Mode
+
+<details>
+ <summaryClick me! ></summary>
+<p>
+           
+         
 Suppose we want to make a very simple REPL mode which just takes whatever input we provide and returns its
 quoted `Expr` form. We first make a parsing function,
 
@@ -50,8 +56,14 @@ Expr> 1 + 1
 Expr> x ^ 2 + 5
 :(x ^ 2 + 5)
 ```
+</p>
+</details>
 
 ## Example 2: Bad Parser Mode
+<details>
+ <summaryClick me! ></summary>
+<p>
+           
 Lets say we're feeling a bit sneaky and want a version of Julia where any input has multiplication and addition switched. 
 
 We first just make a function which takes expressions and if the first argument is `:+` replaces it with `:*` and vice versa. On all other inputs, this function is just an identity operation
@@ -93,7 +105,14 @@ bad_parser> (5 * 5)^2
 100
 ```
 
+</p>
+</details>
+
 ## Example 3: Big Mode
+<details>
+ <summaryClick me! ></summary>
+<p>
+           
 For performance reasons, Julia defaults to 64 bit precision but sometimes you don't care about speed and you don't
 want to juggle the limitations of 64 bit precision in your head. You could just start wrapping every number in your 
 code with `big` but that sounds like something the REPL should be able to do for you. Fortunately, it is!
@@ -123,3 +142,68 @@ BigJulia>  factorial(100.0)
 BigJulia>  factorial(100.0)^2
 8.709782489089480079416590161944485865569720643940840134215932536243379996346655e+315
 ```
+</p>
+</details>
+
+## Example 4: LispSyntax.jl REPL mode
+<details>
+ <summaryClick me! ></summary>
+<p>
+           
+The package [ListpSyntax.jl](https://github.com/swadey/LispSyntax.jl) provides a string macro for
+parsing lisp-style code into julia code which is then evaluated, essentially creating a lispy langauge
+embedded in julia. 
+
+```julia
+julia> lisp"(defn fib [a] (if (< a 2) a (+ (fib (- a 1)) (fib (- a 2)))))"
+fib (generic function with 1 method)
+
+julia> lisp"(fib 30)"
+832040
+```
+Awesome! To make this really feel like it's own language, it'd be nice if it had a special REPL mode, so
+let's make one. For this, we're going need a helper function `valid_sexpr` to tell ReplMaker if we pressed 
+`return` because we were done writing our input or if we wanted to write a multi-line S-expression
+
+```julia
+using LispSyntax, ReplMaker
+using REPL: REPL, LineEdit; using LispSyntax: ParserCombinator
+
+lisp_parser = LispSyntax.lisp_eval_helper
+
+function valid_sexpr(s)
+  try
+    LispSyntax.read(String(take!(copy(LineEdit.buffer(s)))))
+    true
+  catch err
+    isa(err, ParserCombinator.ParserException) || rethrow(err)
+    false
+  end
+end
+```
+Great, now we can create our repl mode using the function `LispSyntax.lisp_eval_helper` 
+to parse input text and we'll use `valid_sexpr` as our `valid_input_checker`.
+```julia
+
+julia> initrepl(LispSyntax.lisp_eval_helper,
+                valid_input_checker=valid_sexpr,
+                prompt_text="λ> ",
+                prompt_color=:red,
+                start_key=")",
+                mode_name="Lisp Mode")
+REPL mode Lisp Mode initialized. Press ) to enter and backspace to exit.
+
+λ> (defn fib [a] 
+    (if (< a 2) 
+      a 
+      (+ (fib (- a 1)) (fib (- a 2)))))
+fib (generic function with 1 method)
+
+λ> (fib 10)
+55
+```
+
+Tada!
+
+</p>
+</details>

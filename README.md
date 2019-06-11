@@ -145,7 +145,7 @@ BigJulia>  factorial(100.0)^2
 </p>
 </details>
 
-## Example 4: LispSyntax.jl REPL mode
+## Example 4: Lisp Mode
 <details>
  <summaryClick me! ></summary>
 <p>

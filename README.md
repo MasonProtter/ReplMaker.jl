@@ -118,10 +118,9 @@ want to juggle the limitations of 64 bit precision in your head. You could just 
 code with `big` but that sounds like something the REPL should be able to do for you. Fortunately, it is!
 ```julia
 using ReplMaker 
-using MacroTools: postwalk
 
-function Big_parse(s)
-    postwalk(x -> x isa Union{Integer, AbstractFloat} ? big(x) : x, Meta.parse(s))
+function Big_parse(str)
+    Meta.parse(replace(str, r"[\+\-]?\d+(?:\.\d+)?(?:[ef][\+\-]?\d+)?" => x -> "big\"$x\""))
 end
 
 julia> initrepl(Big_parse, 

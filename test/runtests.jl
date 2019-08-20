@@ -1,7 +1,3 @@
-# to avoid compilations when tests get started,
-# just compile it here.
-using ReplMaker
-
 using Test, Unicode
 Base.include(@__MODULE__, joinpath(Sys.BINDIR, "..", "share", "julia", "test", "testhelpers", "FakePTYs.jl"))
 import .FakePTYs: open_fake_pty
@@ -22,7 +18,7 @@ initrepl(parse_to_expr,
          prompt_text="Expr> ",
          prompt_color = :blue,
          start_key=')',
-         mode_name="Expr_mode")
+         mode_name="Expr_mode");
 
 ) x + 1
 
@@ -39,13 +35,12 @@ mode = initrepl(parse_to_expr,
          prompt_text="Expr> ",
          prompt_color = :blue,
          start_key=')',
-         mode_name="Expr_mode")
+         mode_name="Expr_mode");
 
-trans_mode!(mode)
-1 + 1
+trans_mode!(mode);
+x + 1
 
 """*CTRL_C
-
 
 function run_test(test_script)
     slave, master = open_fake_pty()
@@ -81,6 +76,9 @@ function run_test(test_script)
     return split(repl_output, '\n'; keepempty=false)
 end
 
+# to avoid compilations when tests get started,
+# just compile it here.
+run_test("using ReplMaker"*CTRL_C)
 
 @testset "test opening REPL modes manually" begin
     out1 = run_test(test_script1);

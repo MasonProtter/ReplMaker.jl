@@ -71,10 +71,7 @@ function initrepl(parser::Function;
     lang_keymap = Dict(
     start_key => (s, args...) ->
       if isempty(s) || position(LineEdit.buffer(s)) == 0
-        buf = copy(LineEdit.buffer(s))
-        LineEdit.transition(s, lang_mode) do
-          LineEdit.state(s, lang_mode).input_buffer = buf
-        end
+        trans_mode(s, lang_mode)
       else
         LineEdit.edit_insert(s, start_key)
       end
@@ -95,7 +92,38 @@ function initrepl(parser::Function;
 
     startup_text && println("REPL mode $mode_name initialized. Press $start_key to enter and backspace to exit.")
 
-  nothing
+  lang_mode
+end
+
+"""
+an extension of `REPL.LineEdit.transition` to achieve handy use.
+
+When
+- giving 3 arguments(action, mistate, mode),
+  it equals to `REPL.LineEdit.transition`.
+
+- giving 2 arguments(mistate, mode),
+  there is a default 'action' copying the
+  current buffer to the target REPL mode.
+
+- giving 1 argument(mode),
+  the action is the same as the case of 2 arguments,
+  and 'mistate' is default to be `Base.active_repl.mistate`
+"""
+function trans_mode!(f, s :: LineEdit.MIState, lang_mode)
+  LineEdit.transition(f, s, lang_mode)
+end
+
+function trans_mode!(s :: LineEdit.MIState, lang_mode)
+  function default_trans_action()
+    buf = copy(LineEdit.buffer(s))
+    LineEdit.state(s, lang_mode).input_buffer = buf
+  end
+  trans_mode!(default_trans_action, s, lang_mode)
+end
+
+function trans_mode!(lang_mode)
+  trans_mode!(Base.active_repl.mistate, lang_mode)
 end
 
 end

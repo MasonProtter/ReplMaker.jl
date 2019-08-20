@@ -14,10 +14,10 @@ function parse_to_expr(s)
     quote Meta.parse(\$s) end
 end
 
-initrepl(parse_to_expr, 
+initrepl(parse_to_expr,
          prompt_text="Expr> ",
-         prompt_color = :blue, 
-         start_key=')', 
+         prompt_color = :blue,
+         start_key=')',
          mode_name="Expr_mode")
 
 ) x + 1
@@ -29,7 +29,7 @@ function run_test()
     slave, master = open_fake_pty()
     # Start a julia process
     p = run(`$(Base.julia_cmd()) --history-file=no --startup-file=no`, slave, slave, slave; wait=false)
-    
+
     # Read until the prompt
     readuntil(master, "julia>", keep=true)
     done = false

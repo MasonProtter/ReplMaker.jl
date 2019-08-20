@@ -22,11 +22,11 @@ export initrepl
                   startup_text=true
                   )
 ```
-creates a custom repl mode which takes in code and parses it according to whatever parsing function you 
-provide in the argument `parser`. Choose which key initializes the repl mode with `start_key`, the name of 
+creates a custom repl mode which takes in code and parses it according to whatever parsing function you
+provide in the argument `parser`. Choose which key initializes the repl mode with `start_key`, the name of
 your repl mode with `mode_name` and optionally provide a function which checks if a given repl input is valid
 before parsing with `valid_input_checker`. Autocompletion options are supplied through the argument
-`completion_provider` which defaults to the standard julia REPL TAB completions. 
+`completion_provider` which defaults to the standard julia REPL TAB completions.
 """
 function initrepl(parser::Function;
                   prompt_text = "myrepl> ",
@@ -42,7 +42,7 @@ function initrepl(parser::Function;
                   )
 
     color = Base.text_colors[prompt_color]
-    
+
     julia_mode = repl.interface.modes[1]
     prefix = repl.hascolor ? color : ""
     suffix = repl.hascolor ? (repl.envcolors ? Base.input_color : repl.input_color()) : ""
@@ -55,7 +55,7 @@ function initrepl(parser::Function;
                                 complete         = completion_provider,
                                 sticky           = sticky_mode
                                 )
-        
+
     lang_mode.on_done = REPL.respond(parser, repl, lang_mode)
 
     push!(repl.interface.modes, lang_mode)
@@ -90,11 +90,11 @@ function initrepl(parser::Function;
     if start_key in keys(julia_mode.keymap_dict)
         @warn "REPL key '$start_key' overwritten."
     end
-    
+
     julia_mode.keymap_dict = LineEdit.keymap_merge(julia_mode.keymap_dict, lang_keymap)
 
     startup_text && println("REPL mode $mode_name initialized. Press $start_key to enter and backspace to exit.")
-    
+
   nothing
 end
 

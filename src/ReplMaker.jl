@@ -5,7 +5,7 @@ module ReplMaker
 import REPL
 import REPL.LineEdit
 
-export initrepl
+export initrepl, trans_mode!
 
 """
 ```
@@ -71,7 +71,7 @@ function initrepl(parser::Function;
     lang_keymap = Dict(
     start_key => (s, args...) ->
       if isempty(s) || position(LineEdit.buffer(s)) == 0
-        trans_mode(s, lang_mode)
+        trans_mode!(s, lang_mode)
       else
         LineEdit.edit_insert(s, start_key)
       end

@@ -1,3 +1,7 @@
+# to avoid compilations when tests get started,
+# just compile it here.
+using ReplMaker
+
 using Test, Unicode
 Base.include(@__MODULE__, joinpath(Sys.BINDIR, "..", "share", "julia", "test", "testhelpers", "FakePTYs.jl"))
 import .FakePTYs: open_fake_pty

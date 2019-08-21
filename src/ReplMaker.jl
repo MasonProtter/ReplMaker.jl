@@ -5,7 +5,7 @@ module ReplMaker
 import REPL
 import REPL.LineEdit
 
-export initrepl, trans_mode!
+export initrepl, enter_mode!
 
 """
 ```
@@ -71,7 +71,7 @@ function initrepl(parser::Function;
     lang_keymap = Dict(
     start_key => (s, args...) ->
       if isempty(s) || position(LineEdit.buffer(s)) == 0
-        trans_mode!(s, lang_mode)
+        enter_mode!(s, lang_mode)
       else
         LineEdit.edit_insert(s, start_key)
       end
@@ -110,20 +110,20 @@ When
   the action is the same as the case of 2 arguments,
   and 'mistate' is default to be `Base.active_repl.mistate`
 """
-function trans_mode!(f, s :: LineEdit.MIState, lang_mode)
+function enter_mode!(f, s :: LineEdit.MIState, lang_mode)
   LineEdit.transition(f, s, lang_mode)
 end
 
-function trans_mode!(s :: LineEdit.MIState, lang_mode)
+function enter_mode!(s :: LineEdit.MIState, lang_mode)
   function default_trans_action()
     buf = copy(LineEdit.buffer(s))
     LineEdit.state(s, lang_mode).input_buffer = buf
   end
-  trans_mode!(default_trans_action, s, lang_mode)
+  enter_mode!(default_trans_action, s, lang_mode)
 end
 
-function trans_mode!(lang_mode)
-  trans_mode!(Base.active_repl.mistate, lang_mode)
+function enter_mode!(lang_mode)
+  enter_mode!(Base.active_repl.mistate, lang_mode)
 end
 
 end

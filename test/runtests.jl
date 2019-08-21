@@ -37,7 +37,7 @@ mode = initrepl(parse_to_expr,
          start_key=')',
          mode_name="Expr_mode");
 
-trans_mode!(mode);
+enter_mode!(mode);
 x + 1
 
 """*CTRL_C

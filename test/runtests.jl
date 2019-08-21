@@ -7,29 +7,46 @@ slave, master = open_fake_pty()
 CTRL_C = '\x03'
 
 # Script that we want the REPL to execute, here simply st for Pkg REPLMode
-test_script = """
+test_script1 = """
 using ReplMaker
 
 function parse_to_expr(s)
     quote Meta.parse(\$s) end
 end
 
-initrepl(parse_to_expr, 
+initrepl(parse_to_expr,
          prompt_text="Expr> ",
-         prompt_color = :blue, 
-         start_key=')', 
-         mode_name="Expr_mode")
+         prompt_color = :blue,
+         start_key=')',
+         mode_name="Expr_mode");
 
 ) x + 1
 
 """*CTRL_C
 
+test_script2 = """
+using ReplMaker
 
-function run_test()
+function parse_to_expr(s)
+    quote Meta.parse(\$s) end
+end
+
+mode = initrepl(parse_to_expr,
+         prompt_text="Expr> ",
+         prompt_color = :blue,
+         start_key=')',
+         mode_name="Expr_mode");
+
+enter_mode!(mode);
+x + 1
+
+"""*CTRL_C
+
+function run_test(test_script)
     slave, master = open_fake_pty()
     # Start a julia process
     p = run(`$(Base.julia_cmd()) --history-file=no --startup-file=no`, slave, slave, slave; wait=false)
-    
+
     # Read until the prompt
     readuntil(master, "julia>", keep=true)
     done = false
@@ -59,9 +76,16 @@ function run_test()
     return split(repl_output, '\n'; keepempty=false)
 end
 
+# to avoid compilations when tests get started,
+# just compile it here.
+run_test("using ReplMaker"*CTRL_C)
 
-out = run_test();
+@testset "test opening REPL modes manually" begin
+    out1 = run_test(test_script1);
+    @test out1[end-5] == "\e[?2004h\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C^C\r"
+end
 
-
-
-@test out[end-5] == "\e[?2004h\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C^C\r"
+@testset "test opening REPL modes automatically" begin
+    out2 = run_test(test_script2);
+    @test out2[end-5] == "\e[?2004h\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C^C\r"
+end

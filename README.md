@@ -1,14 +1,13 @@
 [![Build Status](https://travis-ci.org/MasonProtter/ReplMaker.jl.svg?branch=master)](https://travis-ci.org/MasonProtter/ReplMaker.jl)
 
 # REPLMaker
-The idea here is to make a tool for people making (domain specific) languages in julia. 
-A user of this package will be required to give a function that parses code from whatever langauge the user has 
-implemented and turns it into Julia code which is then executed by Julia. ReplMaker will then create a repl mode where end users 
-just type code from the implemented language and have it be parsed into Julia code automatically. 
+The idea behind ReplMaker.jl is to make a tool for building (domain specific) languages in julia. 
+
+Suppose you've invented some language called MyLang and you've implemented a parser that turns MyLang code into julia code which is then supposed to be executed by the julia runtime. With ReplMaker.jl, you can simply hook your parser into the package and ReplMaker will then create a repl mode where end users just type MyLang code and have it be executed automatically. 
 
 My hope is for this to be useful to someone who implements a full language or DSL in Julia that uses syntax not supported by Julia's parser and doesn't want to deal with the headache of making their own REPL mode. 
 
-To add it,
+To download ReplMaker, simply do 
 ```
 pkg> add ReplMaker
 ```
@@ -206,3 +205,9 @@ Tada!
 
 </p>
 </details>
+
+# Packages using ReplMaker.jl
+
+* [AbstractLogic.jl](https://github.com/EconometricsBySimulation/AbstractLogic.jl): A package for logic programming in julia.
+* [JML.jl](https://github.com/thautwarm/JML.jl):  A dialect of the [ML programming language](https://en.wikipedia.org/wiki/ML_(programming_language)) family embedded in julia.
+* [APL.jl](https://github.com/shashi/APL.jl): A small implementation of [APL](https://en.wikipedia.org/wiki/APL_(programming_language)) in julia.

@@ -45,7 +45,7 @@ x + 1
 function run_test(test_script)
     slave, master = open_fake_pty()
     # Start a julia process
-    p = run(`$(Base.julia_cmd()) --history-file=no --startup-file=no`, slave, slave, slave; wait=false)
+    p = run(`$(Base.julia_cmd()) --history-file=no --startup-file=no --compiled-modules=no`, slave, slave, slave; wait=false)
 
     # Read until the prompt
     readuntil(master, "julia>", keep=true)

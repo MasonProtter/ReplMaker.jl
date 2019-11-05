@@ -1,7 +1,7 @@
 name = "ReplMaker"
 uuid = "06eb6bd6-a0b4-11e8-04f9-4953893e38b8"
 authors = ["MasonProtter <mason.protter@gmail.com>"]
-version = "0.1.0"
+version = "0.2.4"
 
 [deps]
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"

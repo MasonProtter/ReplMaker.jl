@@ -211,3 +211,4 @@ Tada!
 * [AbstractLogic.jl](https://github.com/EconometricsBySimulation/AbstractLogic.jl): A package for logic programming in julia.
 * [JML.jl](https://github.com/thautwarm/JML.jl):  A dialect of the [ML programming language](https://en.wikipedia.org/wiki/ML_(programming_language)) family embedded in julia.
 * [APL.jl](https://github.com/shashi/APL.jl): A small implementation of [APL](https://en.wikipedia.org/wiki/APL_(programming_language)) in julia.
+* [GitCommand.jl](https://github.com/bcbi/GitCommand.jl): uses ReplMaker.jl to provide a Git REPL mode

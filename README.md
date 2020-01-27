@@ -55,6 +55,57 @@ Expr> 1 + 1
 Expr> x ^ 2 + 5
 :(x ^ 2 + 5)
 ```
+
+Next, we might notice that if we try to do a multiline expression, the REPL mode craps out on us:
+```julia
+Expr> function f(x)
+:($(Expr(:incomplete, "incomplete: premature end of input")))
+```
+This is because we haven't told our REPL mode what constitues a valid, complete line. Since this repl mode is just concerned with julia code, lets first make a function to detect if a string will parse to and `incomplete` expression. 
+```julia
+julia> iscomplete(x) = true
+iscomplete (generic function with 1 method)
+
+julia> function iscomplete(ex::Expr)
+           if ex.head == :incomplete
+               false
+           else
+               true
+           end
+       end
+iscomplete (generic function with 2 methods)
+```
+and then we can slurp up the string being stored in the REPL buffer, parse it and check if it is a complete expression:
+```julia
+julia> using REPL: LineEdit
+
+julia> function valid_julia(s)
+           input = String(take!(copy(LineEdit.buffer(s))))
+           iscomplete(Meta.parse(input))
+       end
+valid_julia (generic function with 1 method)
+```
+Now all we have to do is redefine our repl mode to use this completion checker:
+```julia
+julia> initrepl(parse_to_expr,
+                prompt_text="Expr> ",
+                prompt_color = :blue,
+                start_key=')',
+                mode_name="Expr_mode",
+                valid_input_checker=valid_julia)
+┌ Warning: REPL key ')' overwritten.
+└ @ ReplMaker ~/.julia/packages/ReplMaker/pwo5w/src/ReplMaker.jl:86
+REPL mode Expr_mode initialized. Press ) to enter and backspace to exit.
+
+Expr> function f(x)
+          x + 1
+      end
+:(function f(x)
+      #= none:2 =#
+      x + 1
+  end)
+```
+
 </p>
 </details>
 

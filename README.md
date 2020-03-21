@@ -199,7 +199,7 @@ BigJulia>  factorial(100.0)^2
  <summaryClick me! ></summary>
 <p>
            
-The package [ListpSyntax.jl](https://github.com/swadey/LispSyntax.jl) provides a string macro for
+The package [LispSyntax.jl](https://github.com/swadey/LispSyntax.jl) provides a string macro for
 parsing lisp-style code into julia code which is then evaluated, essentially creating a lispy langauge
 embedded in julia. 
 

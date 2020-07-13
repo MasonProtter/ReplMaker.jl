@@ -3,7 +3,7 @@
 # REPLMaker
 The idea behind ReplMaker.jl is to make a tool for building (domain specific) languages in julia. 
 
-Suppose you've invented some language called MyLang and you've implemented a parser that turns MyLang code into julia code which is then supposed to be executed by the julia runtime. With ReplMaker.jl, you can simply hook your parser into the package and ReplMaker will then create a repl mode where end users just type MyLang code and have it be executed automatically. 
+Suppose you've invented some language called MyLang and you've implemented a parser that turns MyLang code into julia code which is then supposed to be executed by the julia runtime. With ReplMaker.jl, you can simply hook your parser into the package and ReplMaker will then create a REPL mode where end users just type MyLang code and have it be executed automatically. 
 
 My hope is for this to be useful to someone who implements a full language or DSL in Julia that uses syntax not supported by Julia's parser and doesn't want to deal with the headache of making their own REPL mode. 
 
@@ -61,7 +61,7 @@ Next, we might notice that if we try to do a multiline expression, the REPL mode
 Expr> function f(x)
 :($(Expr(:incomplete, "incomplete: premature end of input")))
 ```
-This is because we haven't told our REPL mode what constitues a valid, complete line. Since this repl mode is just concerned with julia code, lets first make a function to detect if a string will parse to and `incomplete` expression. 
+This is because we haven't told our REPL mode what constitues a valid, complete line. Since this REPL mode is just concerned with julia code, let's first make a function to detect if a string will parse to an `incomplete` expression. 
 ```julia
 julia> iscomplete(x) = true
 iscomplete (generic function with 1 method)
@@ -85,7 +85,7 @@ julia> function valid_julia(s)
        end
 valid_julia (generic function with 1 method)
 ```
-Now all we have to do is redefine our repl mode to use this completion checker:
+Now all we have to do is redefine our REPL mode to use this completion checker:
 ```julia
 julia> initrepl(parse_to_expr,
                 prompt_text="Expr> ",
@@ -200,7 +200,7 @@ BigJulia>  factorial(100.0)^2
 <p>
            
 The package [LispSyntax.jl](https://github.com/swadey/LispSyntax.jl) provides a string macro for
-parsing lisp-style code into julia code which is then evaluated, essentially creating a lispy langauge
+parsing lisp-style code into julia code which is then evaluated, essentially creating a lispy language
 embedded in julia. 
 
 ```julia
@@ -210,9 +210,9 @@ fib (generic function with 1 method)
 julia> lisp"(fib 30)"
 832040
 ```
-Awesome! To make this really feel like it's own language, it'd be nice if it had a special REPL mode, so
+Awesome! To make this really feel like its own language, it'd be nice if it had a special REPL mode, so
 let's make one. For this, we're going need a helper function `valid_sexpr` to tell ReplMaker if we pressed 
-`return` because we were done writing our input or if we wanted to write a multi-line S-expression
+`return` because we were done writing our input or if we wanted to write a multi-line S-expression.
 
 ```julia
 using LispSyntax, ReplMaker

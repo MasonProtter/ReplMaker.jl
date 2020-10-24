@@ -75,7 +75,7 @@ function initrepl(parser::Function;
       end
     )
 
-    lang_mode.keymap_dict = LineEdit.keymap(Dict[
+    lang_mode.keymap_dict = LineEdit.keymap(Dict{Any,Any}[
         skeymap,
         mk,
         LineEdit.history_keymap,

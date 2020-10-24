@@ -66,7 +66,7 @@ function initrepl(parser::Function;
 
     mk = REPL.mode_keymap(julia_mode)
 
-    lang_keymap = Dict(
+    lang_keymap = Dict{Any,Any}(
     start_key => (s, args...) ->
       if isempty(s) || position(LineEdit.buffer(s)) == 0
         enter_mode!(s, lang_mode)

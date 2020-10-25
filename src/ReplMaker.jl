@@ -2,8 +2,10 @@ module ReplMaker
 
 import REPL
 import REPL.LineEdit
+import REPL.LineEditREPL
+import Base.display
 
-export initrepl, enter_mode!
+export initrepl, enter_mode!, enablecustomdisplay
 
 """
 ```
@@ -122,6 +124,62 @@ end
 
 function enter_mode!(lang_mode)
   enter_mode!(Base.active_repl.mistate, lang_mode)
+end
+
+"""
+```
+CustomREPLDisplay(io::IO)
+```
+Returns a `CustomREPLDisplay <: AbstractDisplay`, which behaves similarly to (e.g.), `TextDisplay`, except allowing
+for custom `replshow` methods that supercede `Base.show` for a REPL with a `CustomREPLDisplay`.
+"""
+struct CustomREPLDisplay <: AbstractDisplay
+    io::IO
+end
+
+
+"""
+```
+replshow(io, M, x)
+```
+Defaults to `show(io, M, x)`, where `io` is an `IO` object, `M` is a `MIME` type, and `x` is the object to be displayed.
+Import and extend this function with any custom pretty-printing methods you wish to enable for a repl mode with `CustomREPLDisplay` enabled.
+For example:
+```
+replshow(io::IO, M::MIME"text/plain", x::Expr) = Meta.show_sexpr(io, x)
+```
+"""
+replshow(io, M, x) = show(io, M, x)
+
+# Extend Base.display with new methods for CustomREPLDisplay that use replshow
+display(d::CustomREPLDisplay, @nospecialize x) = display(d, MIME"text/plain"(), x)
+display(d::CustomREPLDisplay, M::MIME"text/plain", @nospecialize x) = replshow(d.io, M, x)
+
+"""
+```
+enablecustomdisplay(repl::LineEditREPL, io::IO=stdout)
+```
+Make a new LineEditREPL that has all the properties of `repl`, except with `repl.specialdisplay` set to `CustomREPLDisplay(io)`.
+A repl with a `CustomREPLDisplay` will dispatch to `replshow`, which can be extended to enable custom pretty-printing for various data types.
+"""
+function enablecustomdisplay(repl::LineEditREPL, io::IO=stdout)
+    customrepl = LineEditREPL(
+        repl.t,
+        repl.hascolor,
+        repl.prompt_color,
+        repl.input_color,
+        repl.answer_color,
+        repl.shell_color,
+        repl.help_color,
+        repl.history_file,
+        repl.in_shell,
+        repl.in_help,
+        repl.envcolors
+    )
+    customrepl.interface = repl.interface
+    customrepl.backendref = repl.backendref
+    customrepl.specialdisplay = CustomREPLDisplay(io)
+    return customrepl
 end
 
 end

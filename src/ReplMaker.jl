@@ -144,10 +144,15 @@ display(d::CustomREPLDisplay, M::MIME"text/plain", @nospecialize x) = d.replshow
 
 """
 ```
-enablecustomdisplay(repl::LineEditREPL, io::IO=stdout)
+enablecustomdisplay(repl::LineEditREPL, replshow::Function=show, io::IO=stdout)
 ```
 Make a new LineEditREPL that has all the properties of `repl`, except with `repl.specialdisplay` set to `CustomREPLDisplay(io)`.
-A repl with a `CustomREPLDisplay` will dispatch to `replshow`, which can be extended to enable custom pretty-printing for various data types.
+A repl with a `CustomREPLDisplay` set will dispatch to `replshow`, instead of `show`, to allow for custom display for various data types in different REPLs.
+The `replshow` function should support three argument `show`, with a default method of 
+```
+replshow(io, M, x) = show(io, M, x)
+```
+where `io` is an `IO` object, `M` is a `MIME` type, and `x` is the object to be shown
 """
 function enablecustomdisplay(repl::LineEditREPL, replshow::Function=show, io::IO=stdout)
     customrepl = LineEditREPL(

@@ -5,7 +5,7 @@ import REPL.LineEdit
 import REPL.LineEditREPL
 import Base.display
 
-export initrepl, enter_mode!, enablecustomdisplay
+export initrepl, enter_mode!
 
 """
 ```
@@ -15,6 +15,8 @@ export initrepl, enter_mode!, enablecustomdisplay
                   start_key = ')',
                   repl = Base.active_repl,
                   mode_name = :mylang,
+                  show_function = nothing, 
+                  show_function_io = stdout,
                   valid_input_checker::Function = (s -> true),
                   keymap::Dict = REPL.LineEdit.default_keymap_dict,
                   completion_provider = REPL.REPLCompletionProvider(),
@@ -34,6 +36,8 @@ function initrepl(parser::Function;
                   start_key = ')',
                   repl = Base.active_repl,
                   mode_name = :mylang,
+                  show_function = nothing, 
+                  show_function_io = stdout,
                   valid_input_checker::Function = (s -> true),
                   keymap::Dict = REPL.LineEdit.default_keymap_dict,
                   completion_provider = REPL.REPLCompletionProvider(),
@@ -43,10 +47,14 @@ function initrepl(parser::Function;
 
     color = Base.text_colors[prompt_color]
 
+    if ~isnothing(show_function)
+        repl = enablecustomdisplay(repl, show_function, show_function_io)
+    end
+         
     julia_mode = repl.interface.modes[1]
     prefix = repl.hascolor ? color : ""
     suffix = repl.hascolor ? (repl.envcolors ? Base.input_color : repl.input_color()) : ""
-
+    
     lang_mode = LineEdit.Prompt(prompt_text;
                                 prompt_prefix    = prefix,
                                 prompt_suffix    = suffix,

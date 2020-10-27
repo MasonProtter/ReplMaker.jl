@@ -47,7 +47,7 @@ function initrepl(parser::Function;
 
     color = Base.text_colors[prompt_color]
 
-    if ~isnothing(show_function)
+    if show_function != nothing
         repl = enablecustomdisplay(repl, show_function, show_function_io)
     end
          

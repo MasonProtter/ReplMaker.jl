@@ -2,6 +2,8 @@ module ReplMaker
 
 import REPL
 import REPL.LineEdit
+import REPL.LineEditREPL
+import Base.display
 
 export initrepl, enter_mode!
 
@@ -13,6 +15,8 @@ export initrepl, enter_mode!
                   start_key = ')',
                   repl = Base.active_repl,
                   mode_name = :mylang,
+                  show_function = nothing, 
+                  show_function_io = stdout,
                   valid_input_checker::Function = (s -> true),
                   keymap::Dict = REPL.LineEdit.default_keymap_dict,
                   completion_provider = REPL.REPLCompletionProvider(),
@@ -32,6 +36,8 @@ function initrepl(parser::Function;
                   start_key = ')',
                   repl = Base.active_repl,
                   mode_name = :mylang,
+                  show_function = nothing, 
+                  show_function_io = stdout,
                   valid_input_checker::Function = (s -> true),
                   keymap::Dict = REPL.LineEdit.default_keymap_dict,
                   completion_provider = REPL.REPLCompletionProvider(),
@@ -41,10 +47,14 @@ function initrepl(parser::Function;
 
     color = Base.text_colors[prompt_color]
 
+    if show_function != nothing
+        repl = enablecustomdisplay(repl, show_function, show_function_io)
+    end
+         
     julia_mode = repl.interface.modes[1]
     prefix = repl.hascolor ? color : ""
     suffix = repl.hascolor ? (repl.envcolors ? Base.input_color : repl.input_color()) : ""
-
+    
     lang_mode = LineEdit.Prompt(prompt_text;
                                 prompt_prefix    = prefix,
                                 prompt_suffix    = suffix,
@@ -122,6 +132,54 @@ end
 
 function enter_mode!(lang_mode)
   enter_mode!(Base.active_repl.mistate, lang_mode)
+end
+
+"""
+```
+CustomREPLDisplay(io::IO, replshow::Function)
+```
+Returns a `CustomREPLDisplay <: AbstractDisplay`, which behaves similarly to (e.g.), `TextDisplay`, except with
+a custom `replshow` method that will be called instead of `Base.show` for a REPL with a `CustomREPLDisplay`.
+"""
+struct CustomREPLDisplay <: AbstractDisplay
+    io::IO
+    replshow::Function
+end
+
+# Extend Base.display with new methods for CustomREPLDisplay that use replshow
+display(d::CustomREPLDisplay, @nospecialize x) = display(d, MIME"text/plain"(), x)
+display(d::CustomREPLDisplay, M::MIME"text/plain", @nospecialize x) = d.replshow(d.io, M, x)
+
+"""
+```
+enablecustomdisplay(repl::LineEditREPL, replshow::Function=show, io::IO=stdout)
+```
+Make a new LineEditREPL that has all the properties of `repl`, except with `repl.specialdisplay` set to `CustomREPLDisplay(io)`.
+A repl with a `CustomREPLDisplay` set will dispatch to `replshow`, instead of `show`, to allow for custom display for various data types in different REPLs.
+The `replshow` function should support three argument `show`, with a default method of 
+```
+replshow(io, M, x) = show(io, M, x)
+```
+where `io` is an `IO` object, `M` is a `MIME` type, and `x` is the object to be shown
+"""
+function enablecustomdisplay(repl::LineEditREPL, replshow::Function=show, io::IO=stdout)
+    customrepl = LineEditREPL(
+        repl.t,
+        repl.hascolor,
+        repl.prompt_color,
+        repl.input_color,
+        repl.answer_color,
+        repl.shell_color,
+        repl.help_color,
+        repl.history_file,
+        repl.in_shell,
+        repl.in_help,
+        repl.envcolors
+    )
+    customrepl.interface = repl.interface
+    customrepl.backendref = repl.backendref
+    customrepl.specialdisplay = CustomREPLDisplay(io, replshow)
+    return customrepl
 end
 
 end

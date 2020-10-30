@@ -109,50 +109,41 @@ Expr> function f(x)
 </p>
 </details>
 
-## Example 2: Bad Parser Mode
+## Example 2: Reverse Mode
 <details>
  <summaryClick me! ></summary>
 <p>
-           
-Lets say we're feeling a bit sneaky and want a version of Julia where any input has multiplication and addition switched. 
 
-We first just make a function which takes expressions and if the first argument is `:+` replaces it with `:*` and vice versa. On all other inputs, this function is just an identity operation
+This is an example of using a custom REPL mode to not change the meaning of the input code but instead of how results are shown. Suppose we have our own `show`-like function which is just `Base.show`, but will print `Vector`s and `Tuple`s backwards
 ```julia
-function switch_mult_add(expr::Expr)
-    if expr.args[1] == :+
-        expr.args[1] = :*
-        return expr
-    elseif expr.args[1] == :*
-        expr.args[1] = :+
-        return expr
-    else
-        return expr
-    end
-end
-switch_mult_add(s) = s
+backwards_show(io, M, x) = (show(io, M, x); println(io))
+backwards_show(io, M, v::Union{Vector, Tuple}) = (show(io, M, reverse(v)); println(io))
 ```
-We now just borrow the `postwalk` function from MacroTools and use it in our parsing function to recursively look through and input expression tree and apply `switch_mult_add` and use that parser in a new REPL mode.
+We can make a quick and dirty REPL mode that uses this rather than `Base.show` directly:
+
 ```julia
-using MacroTools: postwalk
+julia> initrepl(Meta.parse,
+                show_function = backwards_show,
+                prompt_text = "reverse_julia> ",
+                start_key = ')',
+                mode_name = "reverse mode")
+REPL mode reverse mode initialized. Press ) to enter and backspace to exit.
 
-function bad_julia_parser(s)
-    expr = Meta.parse(s)
-    postwalk(switch_mult_add, expr)
-end
-
-initrepl(bad_julia_parser, 
-         prompt_text="bad_parser> ",
-         prompt_color = :red, 
-         start_key='}', 
-         mode_name="bad_parser_mode")
+reverse_julia> x = [1, 2, 3, 4]
+4-element Array{Int64,1}:
+ 4
+ 3
+ 2
+ 1
 ```
-now by pressing `}` we enter `bad_parser_mode`!
-```julia
-bad_parser> 5 + 5
-25
-
-bad_parser> (5 * 5)^2
-100
+The printing was reversed, but we can check to make sure the variable itself was not:
+```
+julia> x
+4-element Array{Int64,1}:
+ 1
+ 2
+ 3
+ 4
 ```
 
 </p>

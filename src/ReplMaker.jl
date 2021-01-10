@@ -76,12 +76,19 @@ function initrepl(parser::Function;
 
     mk = REPL.mode_keymap(julia_mode)
 
+    if start_key in keys(julia_mode.keymap_dict)
+        @warn "REPL key '$start_key' overwritten."
+        alt = deepcopy(julia_mode.keymap_dict[start_key])
+    else
+        alt = (s, args...) -> LineEdit.edit_insert(s, start_key)
+    end
+
     lang_keymap = Dict{Any,Any}(
     start_key => (s, args...) ->
       if isempty(s) || position(LineEdit.buffer(s)) == 0
         enter_mode!(s, lang_mode)
       else
-        LineEdit.edit_insert(s, start_key)
+        alt(s, args...)
       end
     )
 
@@ -92,9 +99,6 @@ function initrepl(parser::Function;
         LineEdit.default_keymap,
         LineEdit.escape_defaults,
     ])
-    if start_key in keys(julia_mode.keymap_dict)
-        @warn "REPL key '$start_key' overwritten."
-    end
 
     julia_mode.keymap_dict = LineEdit.keymap_merge(julia_mode.keymap_dict, lang_keymap)
 

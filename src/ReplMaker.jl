@@ -15,7 +15,7 @@ export initrepl, enter_mode!
                   start_key = ')',
                   repl = Base.active_repl,
                   mode_name = :mylang,
-                  show_function = nothing, 
+                  show_function = nothing,
                   show_function_io = stdout,
                   valid_input_checker::Function = (s -> true),
                   keymap::Dict = REPL.LineEdit.default_keymap_dict,
@@ -36,7 +36,7 @@ function initrepl(parser::Function;
                   start_key = ')',
                   repl = Base.active_repl,
                   mode_name = :mylang,
-                  show_function = nothing, 
+                  show_function = nothing,
                   show_function_io = stdout,
                   valid_input_checker::Function = (s -> true),
                   keymap::Dict = REPL.LineEdit.default_keymap_dict,
@@ -50,11 +50,11 @@ function initrepl(parser::Function;
     if show_function != nothing
         repl = enablecustomdisplay(repl, show_function, show_function_io)
     end
-         
+
     julia_mode = repl.interface.modes[1]
     prefix = repl.hascolor ? color : ""
     suffix = repl.hascolor ? (repl.envcolors ? Base.input_color : repl.input_color()) : ""
-    
+
     lang_mode = LineEdit.Prompt(prompt_text;
                                 prompt_prefix    = prefix,
                                 prompt_suffix    = suffix,
@@ -76,12 +76,19 @@ function initrepl(parser::Function;
 
     mk = REPL.mode_keymap(julia_mode)
 
+    if start_key in keys(julia_mode.keymap_dict)
+        @warn "REPL key '$start_key' overwritten."
+        alt = deepcopy(julia_mode.keymap_dict[start_key])
+    else
+        alt = (s, args...) -> LineEdit.edit_insert(s, start_key)
+    end
+
     lang_keymap = Dict{Any,Any}(
     start_key => (s, args...) ->
       if isempty(s) || position(LineEdit.buffer(s)) == 0
         enter_mode!(s, lang_mode)
       else
-        LineEdit.edit_insert(s, start_key)
+        alt(s, args...)
       end
     )
 
@@ -92,9 +99,6 @@ function initrepl(parser::Function;
         LineEdit.default_keymap,
         LineEdit.escape_defaults,
     ])
-    if start_key in keys(julia_mode.keymap_dict)
-        @warn "REPL key '$start_key' overwritten."
-    end
 
     julia_mode.keymap_dict = LineEdit.keymap_merge(julia_mode.keymap_dict, lang_keymap)
 
@@ -156,7 +160,7 @@ enablecustomdisplay(repl::LineEditREPL, replshow::Function=show, io::IO=stdout)
 ```
 Make a new LineEditREPL that has all the properties of `repl`, except with `repl.specialdisplay` set to `CustomREPLDisplay(io)`.
 A repl with a `CustomREPLDisplay` set will dispatch to `replshow`, instead of `show`, to allow for custom display for various data types in different REPLs.
-The `replshow` function should support three argument `show`, with a default method of 
+The `replshow` function should support three argument `show`, with a default method of
 ```
 replshow(io, M, x) = show(io, M, x)
 ```

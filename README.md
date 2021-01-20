@@ -248,6 +248,27 @@ Tada!
 </p>
 </details>
 
+# Creating a REPL mode at startup time
+
+To add a custom REPL mode whenever Julia starts, add to `~/.julia/config/startup.jl` code like:
+
+```julia
+atreplinit() do repl
+    try
+        @eval using ReplMaker
+        @async initrepl(
+            apropos;
+            prompt_text="search> ",
+            prompt_color=:magenta,
+            start_key=')',
+            mode_name="search_mode"
+        )
+        catch
+        end
+    end
+end
+```
+
 # Packages using ReplMaker.jl
 
 * [AbstractLogic.jl](https://github.com/EconometricsBySimulation/AbstractLogic.jl): A package for logic programming in julia.

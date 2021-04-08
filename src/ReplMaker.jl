@@ -74,6 +74,8 @@ function initrepl(parser::Function;
 
     search_prompt, skeymap = LineEdit.setup_search_keymap(hp)
 
+    prefix_prompt, prefix_keymap = LineEdit.setup_prefix_keymap(hp, lang_mode)
+
     mk = REPL.mode_keymap(julia_mode)
 
     if start_key in keys(julia_mode.keymap_dict)
@@ -95,6 +97,7 @@ function initrepl(parser::Function;
     lang_mode.keymap_dict = LineEdit.keymap(Dict{Any,Any}[
         skeymap,
         mk,
+        prefix_keymap,
         LineEdit.history_keymap,
         LineEdit.default_keymap,
         LineEdit.escape_defaults,
@@ -104,7 +107,7 @@ function initrepl(parser::Function;
 
     startup_text && println("REPL mode $mode_name initialized. Press $start_key to enter and backspace to exit.")
 
-  lang_mode
+    lang_mode
 end
 
 """

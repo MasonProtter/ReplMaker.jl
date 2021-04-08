@@ -61,38 +61,16 @@ Next, we might notice that if we try to do a multiline expression, the REPL mode
 Expr> function f(x)
 :($(Expr(:incomplete, "incomplete: premature end of input")))
 ```
-This is because we haven't told our REPL mode what constitues a valid, complete line. Since this REPL mode is just concerned with julia code, let's first make a function to detect if a string will parse to an `incomplete` expression. 
-```julia
-julia> iscomplete(x) = true
-iscomplete (generic function with 1 method)
+This is because we haven't told our REPL mode what constitues a valid, complete line. ReplMaker.jl exports a function `complete_julia` that will tell you if a given expression is a complete julia-expression. If you are using ReplMaker.jl for a DSL that has different parsing semantics from julia, you may need to roll your own analogous function if you want to have multi-line inputs.
 
-julia> function iscomplete(ex::Expr)
-           if ex.head == :incomplete
-               false
-           else
-               true
-           end
-       end
-iscomplete (generic function with 2 methods)
-```
-and then we can slurp up the string being stored in the REPL buffer, parse it and check if it is a complete expression:
-```julia
-julia> using REPL: LineEdit
-
-julia> function valid_julia(s)
-           input = String(take!(copy(LineEdit.buffer(s))))
-           iscomplete(Meta.parse(input))
-       end
-valid_julia (generic function with 1 method)
-```
-Now all we have to do is redefine our REPL mode to use this completion checker:
+To use `complete_julia` to check if an expression is complete, we just pass it as a keyword argument to to `initrepl`:
 ```julia
 julia> initrepl(parse_to_expr,
                 prompt_text="Expr> ",
                 prompt_color = :blue,
                 start_key=')',
                 mode_name="Expr_mode",
-                valid_input_checker=valid_julia)
+                valid_input_checker=complete_julia)
 ┌ Warning: REPL key ')' overwritten.
 └ @ ReplMaker ~/.julia/packages/ReplMaker/pwo5w/src/ReplMaker.jl:86
 REPL mode Expr_mode initialized. Press ) to enter and backspace to exit.

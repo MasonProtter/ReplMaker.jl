@@ -5,7 +5,7 @@ import REPL.LineEdit
 import REPL.LineEditREPL
 import Base.display
 
-export initrepl, enter_mode!
+export initrepl, enter_mode!, complete_julia
 
 """
 ```
@@ -187,6 +187,20 @@ function enablecustomdisplay(repl::LineEditREPL, replshow::Function=show, io::IO
     customrepl.backendref = repl.backendref
     customrepl.specialdisplay = CustomREPLDisplay(io, replshow)
     return customrepl
+end
+
+function complete_julia(s)
+    input = String(take!(copy(LineEdit.buffer(s))))
+    iscomplete(Meta.parse(input))
+end
+
+iscomplete(x) = true
+function iscomplete(ex::Expr)
+    if ex.head == :incomplete
+        false
+    else
+        true
+    end
 end
 
 end

@@ -253,3 +253,4 @@ end
 * [JML.jl](https://github.com/thautwarm/JML.jl):  A dialect of the [ML programming language](https://en.wikipedia.org/wiki/ML_(programming_language)) family embedded in julia.
 * [APL.jl](https://github.com/shashi/APL.jl): A small implementation of [APL](https://en.wikipedia.org/wiki/APL_(programming_language)) in julia.
 * [GitCommand.jl](https://github.com/bcbi/GitCommand.jl): uses ReplMaker.jl to provide a Git REPL mode
+* [RemoteREPL.jl](https://github.com/c42f/RemoteREPL.jl): Remotely share a REPL session with another user.

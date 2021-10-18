@@ -28,7 +28,8 @@ creates a custom repl mode which takes in code and parses it according to whatev
 provide in the argument `parser`. Choose which key initializes the repl mode with `start_key`, the name of
 your repl mode with `mode_name` and optionally provide a function which checks if a given repl input is valid
 before parsing with `valid_input_checker`. Autocompletion options are supplied through the argument
-`completion_provider` which defaults to the standard julia REPL TAB completions.
+`completion_provider` which defaults to the standard julia REPL TAB completions. `prompt_text` may either be a
+string or a zero-argument function which computes the prompt string.
 """
 function initrepl(parser::Function;
                   prompt_text = "myrepl> ",

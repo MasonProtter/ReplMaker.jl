@@ -79,15 +79,17 @@ function initrepl(parser::Function;
 
     mk = REPL.mode_keymap(julia_mode)
 
-    if start_key in keys(julia_mode.keymap_dict)
+    normalized_start_key = LineEdit.normalize_key(start_key)
+    alt = get_nested_key(julia_mode.keymap_dict, normalized_start_key)
+    if alt !== nothing
         @warn "REPL key '$start_key' overwritten."
-        alt = deepcopy(julia_mode.keymap_dict[start_key])
+        alt = deepcopy(alt)
     else
-        alt = (s, args...) -> LineEdit.edit_insert(s, start_key)
+        alt = (s, args...) -> LineEdit.edit_insert(s, normalized_start_key)
     end
 
     lang_keymap = Dict{Any,Any}(
-    start_key => (s, args...) ->
+    normalized_start_key => (s, args...) ->
       if isempty(s) || position(LineEdit.buffer(s)) == 0
         enter_mode!(s, lang_mode)
       else
@@ -110,6 +112,24 @@ function initrepl(parser::Function;
 
     lang_mode
 end
+
+function get_nested_key(keymap::Dict, key::Union{String, Char})
+    y = iterate(key)
+    while y !== nothing
+        c, i = y
+        y = iterate(key, i)
+        tmp = get(keymap, c, nothing)
+        if (y === nothing) == isa(tmp, Dict)
+            error("Conflicting definitions for keyseq " * escape_string(key) *
+                  " within one keymap")
+        end
+        if y === nothing
+            return tmp
+        end
+        keymap = tmp
+    end
+end
+
 
 """
 an extension of `REPL.LineEdit.transition` to achieve handy use.

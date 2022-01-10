@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/MasonProtter/ReplMaker.jl.svg?branch=master)](https://travis-ci.org/MasonProtter/ReplMaker.jl)
+[![Build Status](https://github.com/MasonProtter/ReplMaker.jl/workflows/CI/badge.svg)](https://github.com/MasonProtter/ReplMaker.jl/actions)
+[![codecov](https://codecov.io/gh/MasonProtter/ReplMaker.jl/branch/master/graph/badge.svg?token=zkneHUR45j)](https://codecov.io/gh/MasonProtter/ReplMaker.jl)
 
 # REPLMaker
 The idea behind ReplMaker.jl is to make a tool for building (domain specific) languages in julia. 

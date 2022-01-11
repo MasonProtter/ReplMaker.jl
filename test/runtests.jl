@@ -2,8 +2,6 @@ using Test, Unicode
 Base.include(@__MODULE__, joinpath(Sys.BINDIR, "..", "share", "julia", "test", "testhelpers", "FakePTYs.jl"))
 import .FakePTYs: open_fake_pty
 
-slave, master = open_fake_pty()
-
 CTRL_C = '\x03'
 
 # Script that we want the REPL to execute, here simply st for Pkg REPLMode
@@ -68,6 +66,7 @@ function run_test(test_script)
     # Let the REPL exit
     write(master, "exit()\n")
     wait(p)
+    sleep(1)
     done = true
 
     # Gather the output
@@ -82,10 +81,20 @@ run_test("using ReplMaker"*CTRL_C)
 
 @testset "test opening REPL modes manually" begin
     out1 = run_test(test_script1);
+    open("out1.log","w") do f
+        for i in 1:length(out1)
+            println(f, i, ": ", escape_string(out1[i]))
+        end
+    end
     @test out1[end-5] == "\e[?2004h\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C^C\r"
 end
 
 @testset "test opening REPL modes automatically" begin
     out2 = run_test(test_script2);
+    open("out2.log","w") do f
+        for i in 1:length(out2)
+            println(f, i, ": ", escape_string(out2[i]))
+        end
+    end
     @test out2[end-5] == "\e[?2004h\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C^C\r"
 end

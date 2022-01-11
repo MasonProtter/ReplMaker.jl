@@ -1,0 +1,40 @@
+name: CI
+on:
+  - push
+  - pull_request
+jobs:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ github.event_name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '1.0'  # oldest supported release
+          - '1.6'  # current LTS release
+          - '1.7'  # latest release
+          - 'nightly'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{ matrix.version }}
+      - uses: actions/cache@v1
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
+      - uses: julia-actions/julia-buildpkg@v1
+      - uses: julia-actions/julia-runtest@v1
+        continue-on-error: true
+      - name: "Setup tmate session"
+        uses: mxschmitt/action-tmate@v3
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v2
+        with:
+          file: lcov.info

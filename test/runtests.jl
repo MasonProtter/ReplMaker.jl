@@ -68,6 +68,7 @@ function run_test(test_script)
     # Let the REPL exit
     write(master, "exit()\n")
     wait(p)
+    sleep(1)
     done = true
 
     # Gather the output

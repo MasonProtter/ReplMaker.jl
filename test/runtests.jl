@@ -2,8 +2,6 @@ using Test, Unicode
 Base.include(@__MODULE__, joinpath(Sys.BINDIR, "..", "share", "julia", "test", "testhelpers", "FakePTYs.jl"))
 import .FakePTYs: open_fake_pty
 
-slave, master = open_fake_pty()
-
 CTRL_C = '\x03'
 
 # Script that we want the REPL to execute, here simply st for Pkg REPLMode

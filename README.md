@@ -61,7 +61,7 @@ Next, we might notice that if we try to do a multiline expression, the REPL mode
 Expr> function f(x)
 :($(Expr(:incomplete, "incomplete: premature end of input")))
 ```
-This is because we haven't told our REPL mode what constitues a valid, complete line. ReplMaker.jl exports a function `complete_julia` that will tell you if a given expression is a complete julia-expression. If you are using ReplMaker.jl for a DSL that has different parsing semantics from julia, you may need to roll your own analogous function if you want to have multi-line inputs.
+This is because we haven't told our REPL mode what constitutes a valid, complete line. ReplMaker.jl exports a function `complete_julia` that will tell you if a given expression is a complete julia-expression. If you are using ReplMaker.jl for a DSL that has different parsing semantics from julia, you may need to roll your own analogous function if you want to have multi-line inputs.
 
 To use `complete_julia` to check if an expression is complete, we just pass it as a keyword argument to to `initrepl`:
 ```julia

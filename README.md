@@ -231,7 +231,7 @@ Tada!
  <summaryClick me! ></summary>
 <p>
            
-Aritrary key combinations to enter REPL modes are not yet allowed, but you can currently use the `CTRL` and `ALT` (also known as `META`) keys as modifiers for entering REPL modes. For example, passing the keyword argument `start_key="\\C-g"` to the `initrepl` function will make it so that holding down on the `CTRL` key and pressing `g` enters the specified mode. 
+Arbitrary key combinations to enter REPL modes are not yet allowed, but you can currently use the `CTRL` and `ALT` (also known as `META`) keys as modifiers for entering REPL modes. For example, passing the keyword argument `start_key="\\C-g"` to the `initrepl` function will make it so that holding down on the `CTRL` key and pressing `g` enters the specified mode. 
 
 Likewise, specifying `start_key="\\M-u"` will make it so that holding `ALT` (aka `META`) and pressing `u` will enter the desired mode. 
 

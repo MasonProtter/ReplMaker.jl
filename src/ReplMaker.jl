@@ -30,6 +30,14 @@ your repl mode with `mode_name` and optionally provide a function which checks i
 before parsing with `valid_input_checker`. Autocompletion options are supplied through the argument
 `completion_provider` which defaults to the standard julia REPL TAB completions. `prompt_text` may either be a
 string or a zero-argument function which computes the prompt string.
+
+Aritrary key combinations to enter REPL modes are not yet allowed, but you can currently use the `CTRL` and `ALT` 
+(also known as `META`) keys as modifiers for entering REPL modes. For example, passing the keyword argument 
+`start_key="\\C-g"` to the `initrepl` function will make it so that holding down on the `CTRL` key and pressing 
+`g` enters the specified mode.
+
+Likewise, specifying `start_key="\\M-u"` will make it so that holding `ALT` (aka `META`) and pressing `u` will
+enter the desired mode.
 """
 function initrepl(parser::Function;
                   prompt_text = "myrepl> ",
@@ -79,15 +87,17 @@ function initrepl(parser::Function;
 
     mk = REPL.mode_keymap(julia_mode)
 
-    if start_key in keys(julia_mode.keymap_dict)
+    normalized_start_key = LineEdit.normalize_key(start_key)
+    alt = get_nested_key(julia_mode.keymap_dict, normalized_start_key)
+    if alt !== nothing
         @warn "REPL key '$start_key' overwritten."
-        alt = deepcopy(julia_mode.keymap_dict[start_key])
+        alt = deepcopy(alt)
     else
-        alt = (s, args...) -> LineEdit.edit_insert(s, start_key)
+        alt = (s, args...) -> LineEdit.edit_insert(s, normalized_start_key)
     end
 
     lang_keymap = Dict{Any,Any}(
-    start_key => (s, args...) ->
+    normalized_start_key => (s, args...) ->
       if isempty(s) || position(LineEdit.buffer(s)) == 0
         enter_mode!(s, lang_mode)
       else
@@ -111,6 +121,24 @@ function initrepl(parser::Function;
     lang_mode
 end
 
+function get_nested_key(keymap::Dict, key::Union{String, Char})
+    y = iterate(key)
+    while y !== nothing
+        c, i = y
+        y = iterate(key, i)
+        tmp = get(keymap, c, nothing)
+        if (y === nothing) == isa(tmp, Dict)
+            error("Conflicting definitions for keyseq " * escape_string(key) *
+                  " within one keymap")
+        end
+        if y === nothing
+            return tmp
+        end
+        keymap = tmp
+    end
+end
+
+
 """
 an extension of `REPL.LineEdit.transition` to achieve handy use.
 
@@ -131,8 +159,8 @@ function enter_mode!(f, s :: LineEdit.MIState, lang_mode)
 end
 
 function enter_mode!(s :: LineEdit.MIState, lang_mode)
+  buf = copy(LineEdit.buffer(s))
   function default_trans_action()
-    buf = copy(LineEdit.buffer(s))
     LineEdit.state(s, lang_mode).input_buffer = buf
   end
   enter_mode!(default_trans_action, s, lang_mode)

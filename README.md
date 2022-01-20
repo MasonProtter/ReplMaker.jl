@@ -16,7 +16,7 @@ pkg> add ReplMaker
 ## Example 1: Expr Mode
 
 <details>
- <summaryClick me! ></summary>
+ <summary> Click me! </summary>
 <p>
            
          
@@ -89,7 +89,7 @@ Expr> function f(x)
 
 ## Example 2: Reverse Mode
 <details>
- <summaryClick me! ></summary>
+ <summary> Click me! </summary>
 <p>
 
 This is an example of using a custom REPL mode to not change the meaning of the input code but instead of how results are shown. Suppose we have our own `show`-like function which is just `Base.show`, but will print `Vector`s and `Tuple`s backwards
@@ -129,7 +129,7 @@ julia> x
 
 ## Example 3: Big Mode
 <details>
- <summaryClick me! ></summary>
+ <summary> Click me! </summary>
 <p>
            
 For performance reasons, Julia defaults to 64 bit precision but sometimes you don't care about speed and you don't
@@ -165,7 +165,7 @@ BigJulia>  factorial(100.0)^2
 
 ## Example 4: Lisp Mode
 <details>
- <summaryClick me! ></summary>
+ <summary> Click me! </summary>
 <p>
            
 The package [LispSyntax.jl](https://github.com/swadey/LispSyntax.jl) provides a string macro for
@@ -228,7 +228,7 @@ Tada!
 
 # Modifier keys
 <details>
- <summaryClick me! ></summary>
+ <summary> Click me! </summary>
 <p>
            
 Arbitrary key combinations to enter REPL modes are not yet allowed, but you can currently use the `CTRL` and `ALT` (also known as `META`) keys as modifiers for entering REPL modes. For example, passing the keyword argument `start_key="\\C-g"` to the `initrepl` function will make it so that holding down on the `CTRL` key and pressing `g` enters the specified mode. 

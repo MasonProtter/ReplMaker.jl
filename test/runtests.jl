@@ -4,7 +4,8 @@ import .FakePTYs: open_fake_pty
 
 slave, master = open_fake_pty()
 
-CTRL_C = '\x03'
+const CTRL_C = '\x03'
+const CTRL_G = '\x07'
 
 # Script that we want the REPL to execute, here simply st for Pkg REPLMode
 test_script1 = """
@@ -39,6 +40,24 @@ mode = initrepl(parse_to_expr,
 
 enter_mode!(mode);
 x + 1
+
+"""*CTRL_C
+
+# Test ctrl-key combo: ctrl-g
+test_script3 = """
+using ReplMaker
+
+function parse_to_expr(s)
+    quote Meta.parse(\$s) end
+end
+
+initrepl(parse_to_expr,
+         prompt_text="Expr> ",
+         prompt_color = :blue,
+         start_key="\\\\C-g",
+         mode_name="Expr_mode");
+
+"""*CTRL_G*""" x + 1
 
 """*CTRL_C
 
@@ -88,4 +107,9 @@ end
 @testset "test opening REPL modes automatically" begin
     out2 = run_test(test_script2);
     @test out2[end-5] == "\e[?2004h\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C^C\r"
+end
+
+@testset "test opening REPL modes manually with Ctrl-g" begin
+    out3 = run_test(test_script3);
+    @test out3[end-5] == "\e[?2004h\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C^C\r"
 end

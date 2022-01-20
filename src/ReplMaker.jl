@@ -131,8 +131,8 @@ function enter_mode!(f, s :: LineEdit.MIState, lang_mode)
 end
 
 function enter_mode!(s :: LineEdit.MIState, lang_mode)
+  buf = copy(LineEdit.buffer(s))
   function default_trans_action()
-    buf = copy(LineEdit.buffer(s))
     LineEdit.state(s, lang_mode).input_buffer = buf
   end
   enter_mode!(default_trans_action, s, lang_mode)

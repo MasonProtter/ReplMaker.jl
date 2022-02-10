@@ -60,9 +60,10 @@ function initrepl(parser::Function;
         repl = enablecustomdisplay(repl, show_function, show_function_io)
     end
 
-    repl.interface = REPL.setup_interface(repl)
+    if !isdefined(repl, :interface)
+        repl.interface = REPL.setup_interface(repl)
+    end
     julia_mode = repl.interface.modes[1]
-
     prefix = repl.hascolor ? color : ""
     suffix = repl.hascolor ? (repl.envcolors ? Base.input_color : repl.input_color()) : ""
 

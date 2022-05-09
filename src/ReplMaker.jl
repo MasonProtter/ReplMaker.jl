@@ -53,7 +53,9 @@ function initrepl(parser::Function;
                   sticky_mode = true,
                   startup_text=true
                   )
-
+         
+    # Most of this was lifted from https://github.com/swadey/LispREPL.jl/ (MIT Licensed code by Wade Shen) in July 2018
+         
     color = Base.text_colors[prompt_color]
 
     if show_function != nothing

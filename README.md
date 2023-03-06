@@ -253,8 +253,7 @@ atreplinit() do repl
             start_key=')',
             mode_name="search_mode"
         )
-        catch
-        end
+    catch
     end
 end
 ```

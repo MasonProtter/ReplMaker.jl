@@ -247,6 +247,7 @@ function enablecustomdisplay(repl::LineEditREPL, replshow::Function=show, io::IO
         repl.answer_color,
         repl.shell_color,
         repl.help_color,
+        (@static VERSION < v"1.11" ? () : (repl.pkg_color,))...,
         repl.history_file,
         repl.in_shell,
         repl.in_help,

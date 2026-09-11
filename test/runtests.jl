@@ -5,6 +5,11 @@ import .FakePTYs: open_fake_pty
 const CTRL_C = '\x03'
 const CTRL_G = '\x07'
 
+# Note that each call in the test scripts below must be written on a single line
+# because the REPL auto-inserts a closing bracket, which would make the first
+# line of a multi-line call complete and evaluate it before the other arguments
+# are typed.
+
 # Script that we want the REPL to execute, here simply st for Pkg REPLMode
 test_script1 = """
 using ReplMaker
@@ -13,11 +18,7 @@ function parse_to_expr(s)
     quote Meta.parse(\$s) end
 end
 
-initrepl(parse_to_expr,
-         prompt_text="Expr> ",
-         prompt_color = :blue,
-         start_key=')',
-         mode_name="Expr_mode");
+initrepl(parse_to_expr, prompt_text="Expr> ", prompt_color = :blue, start_key=')', mode_name="Expr_mode");
 
 ) x + 1
 
@@ -30,11 +31,7 @@ function parse_to_expr(s)
     quote Meta.parse(\$s) end
 end
 
-mode = initrepl(parse_to_expr,
-         prompt_text="Expr> ",
-         prompt_color = :blue,
-         start_key=')',
-         mode_name="Expr_mode");
+mode = initrepl(parse_to_expr, prompt_text="Expr> ", prompt_color = :blue, start_key=')', mode_name="Expr_mode");
 
 enter_mode!(mode);
 x + 1
@@ -49,11 +46,7 @@ function parse_to_expr(s)
     quote Meta.parse(\$s) end
 end
 
-initrepl(parse_to_expr,
-         prompt_text="Expr> ",
-         prompt_color = :blue,
-         start_key="\\\\C-g",
-         mode_name="Expr_mode");
+initrepl(parse_to_expr, prompt_text="Expr> ", prompt_color = :blue, start_key="\\\\C-g", mode_name="Expr_mode");
 
 """*CTRL_G*""" x + 1
 
@@ -62,7 +55,7 @@ initrepl(parse_to_expr,
 function run_test(test_script)
     slave, master = open_fake_pty()
     # Start a julia process
-    p = run(`$(Base.julia_cmd()) --history-file=no --startup-file=no --compiled-modules=no`, slave, slave, slave; wait=false)
+    p = run(`$(Base.julia_cmd()) --history-file=no --startup-file=no`, slave, slave, slave; wait=false)
 
     # Read until the prompt
     readuntil(master, "julia>", keep=true)

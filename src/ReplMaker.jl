@@ -86,7 +86,12 @@ function initrepl(parser::Function;
     hp.mode_mapping[mode_name |> Symbol] = lang_mode
     lang_mode.hist         = hp
 
-    search_prompt, skeymap = LineEdit.setup_search_keymap(hp)
+    keymaps = Dict{Any,Any}[]
+    # Julia 1.13 removed the separate history search prompt
+    if isdefined(LineEdit, :setup_search_keymap)
+        search_prompt, skeymap = LineEdit.setup_search_keymap(hp)
+        push!(keymaps, skeymap)
+    end
 
     prefix_prompt, prefix_keymap = LineEdit.setup_prefix_keymap(hp, lang_mode)
 
@@ -110,14 +115,14 @@ function initrepl(parser::Function;
       end
     )
 
-    lang_mode.keymap_dict = LineEdit.keymap(Dict{Any,Any}[
-        skeymap,
+    append!(keymaps, Dict{Any,Any}[
         mk,
         prefix_keymap,
         LineEdit.history_keymap,
         LineEdit.default_keymap,
         LineEdit.escape_defaults,
     ])
+    lang_mode.keymap_dict = LineEdit.keymap(keymaps)
 
     julia_mode.keymap_dict = LineEdit.keymap_merge(julia_mode.keymap_dict, lang_keymap)
 

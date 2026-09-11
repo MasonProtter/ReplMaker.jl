@@ -5,7 +5,7 @@ import REPL.LineEdit
 import REPL.LineEditREPL
 import Base.display
 
-export initrepl, enter_mode!, complete_julia
+export initrepl, enter_mode!, complete_julia, FunctionCompletionProvider
 
 """
 ```
@@ -129,6 +129,36 @@ function initrepl(parser::Function;
     startup_text && println("REPL mode $mode_name initialized. Press $start_key to enter and backspace to exit.")
 
     lang_mode
+end
+
+"""
+```
+FunctionCompletionProvider(f::Function)
+```
+Completion provider which completes from the candidates returned by `f`, to be passed to the
+`completion_provider` keyword argument of [`initrepl`](@ref). `f` is called with the part of
+the input line which precedes the cursor, and must return a tuple `(candidates, partial)`,
+where `candidates` is a list of strings to complete to, and `partial` is the part of the
+input which they complete (often the last word).
+
+For example, a mode completing only its own commands:
+```julia
+function complete_commands(before_cursor)
+    commands = ["add", "remove"]
+    filter(c -> startswith(c, before_cursor), commands), before_cursor
+end
+
+initrepl(parser, completion_provider=FunctionCompletionProvider(complete_commands))
+```
+"""
+struct FunctionCompletionProvider <: LineEdit.CompletionProvider
+    f::Function
+end
+
+function LineEdit.complete_line(c::FunctionCompletionProvider, s; hint::Bool=false)
+    full = LineEdit.input_string(s)
+    candidates, partial = c.f(String(codeunits(full)[1:position(s)]))
+    candidates, partial, !isempty(candidates)
 end
 
 function get_nested_key(keymap::Dict, key::Union{String, Char})

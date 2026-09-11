@@ -1,4 +1,6 @@
 using Test, Unicode
+using ReplMaker, REPL
+using REPL.LineEdit
 Base.include(@__MODULE__, joinpath(Sys.BINDIR, "..", "share", "julia", "test", "testhelpers", "FakePTYs.jl"))
 import .FakePTYs: open_fake_pty
 
@@ -103,4 +105,26 @@ end
 @testset "test opening REPL modes manually with Ctrl-g" begin
     out3 = run_test(test_script3);
     @test out3[end-5] == "\e[?2004h\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C^C\r"
+end
+
+@testset "FunctionCompletionProvider" begin
+    commands = ["add", "remove", "resolve"]
+    provider = FunctionCompletionProvider() do before_cursor
+        filter(c -> startswith(c, before_cursor), commands), before_cursor
+    end
+
+    term = REPL.Terminals.TTYTerminal("dumb", stdin, stdout, stderr)
+    state = LineEdit.init_state(term, LineEdit.Prompt("test> "))
+
+    LineEdit.edit_insert(state, "re")
+    @test LineEdit.complete_line(provider, state) == (["remove", "resolve"], "re", true)
+
+    # Only the text before the cursor is passed to the completion function
+    LineEdit.edit_insert(state, "xyz")
+    LineEdit.edit_move_left(state); LineEdit.edit_move_left(state); LineEdit.edit_move_left(state)
+    @test LineEdit.complete_line(provider, state) == (["remove", "resolve"], "re", true)
+
+    LineEdit.edit_clear(LineEdit.buffer(state))
+    LineEdit.edit_insert(state, "zzz")
+    @test LineEdit.complete_line(provider, state) == (String[], "zzz", false)
 end

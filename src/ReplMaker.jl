@@ -5,7 +5,7 @@ import REPL.LineEdit
 import REPL.LineEditREPL
 import Base.display
 
-export initrepl, enter_mode!, complete_julia
+export initrepl, enter_mode!, complete_julia, FunctionCompletionProvider
 
 """
 ```
@@ -86,7 +86,12 @@ function initrepl(parser::Function;
     hp.mode_mapping[mode_name |> Symbol] = lang_mode
     lang_mode.hist         = hp
 
-    search_prompt, skeymap = LineEdit.setup_search_keymap(hp)
+    keymaps = Dict{Any,Any}[]
+    # Julia 1.13 removed the separate history search prompt
+    if isdefined(LineEdit, :setup_search_keymap)
+        search_prompt, skeymap = LineEdit.setup_search_keymap(hp)
+        push!(keymaps, skeymap)
+    end
 
     prefix_prompt, prefix_keymap = LineEdit.setup_prefix_keymap(hp, lang_mode)
 
@@ -110,20 +115,50 @@ function initrepl(parser::Function;
       end
     )
 
-    lang_mode.keymap_dict = LineEdit.keymap(Dict{Any,Any}[
-        skeymap,
+    append!(keymaps, Dict{Any,Any}[
         mk,
         prefix_keymap,
         LineEdit.history_keymap,
         LineEdit.default_keymap,
         LineEdit.escape_defaults,
     ])
+    lang_mode.keymap_dict = LineEdit.keymap(keymaps)
 
     julia_mode.keymap_dict = LineEdit.keymap_merge(julia_mode.keymap_dict, lang_keymap)
 
     startup_text && println("REPL mode $mode_name initialized. Press $start_key to enter and backspace to exit.")
 
     lang_mode
+end
+
+"""
+```
+FunctionCompletionProvider(f::Function)
+```
+Completion provider which completes from the candidates returned by `f`, to be passed to the
+`completion_provider` keyword argument of [`initrepl`](@ref). `f` is called with the part of
+the input line which precedes the cursor, and must return a tuple `(candidates, partial)`,
+where `candidates` is a list of strings to complete to, and `partial` is the part of the
+input which they complete (often the last word).
+
+For example, a mode completing only its own commands:
+```julia
+function complete_commands(before_cursor)
+    commands = ["add", "remove"]
+    filter(c -> startswith(c, before_cursor), commands), before_cursor
+end
+
+initrepl(parser, completion_provider=FunctionCompletionProvider(complete_commands))
+```
+"""
+struct FunctionCompletionProvider <: LineEdit.CompletionProvider
+    f::Function
+end
+
+function LineEdit.complete_line(c::FunctionCompletionProvider, s; hint::Bool=false)
+    full = LineEdit.input_string(s)
+    candidates, partial = c.f(String(codeunits(full)[1:position(s)]))
+    candidates, partial, !isempty(candidates)
 end
 
 function get_nested_key(keymap::Dict, key::Union{String, Char})

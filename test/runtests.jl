@@ -1,9 +1,16 @@
 using Test, Unicode
+using ReplMaker, REPL
+using REPL.LineEdit
 Base.include(@__MODULE__, joinpath(Sys.BINDIR, "..", "share", "julia", "test", "testhelpers", "FakePTYs.jl"))
 import .FakePTYs: open_fake_pty
 
 const CTRL_C = '\x03'
 const CTRL_G = '\x07'
+
+# Note that each call in the test scripts below must be written on a single line
+# because the REPL auto-inserts a closing bracket, which would make the first
+# line of a multi-line call complete and evaluate it before the other arguments
+# are typed.
 
 # Script that we want the REPL to execute, here simply st for Pkg REPLMode
 test_script1 = """
@@ -13,11 +20,7 @@ function parse_to_expr(s)
     quote Meta.parse(\$s) end
 end
 
-initrepl(parse_to_expr,
-         prompt_text="Expr> ",
-         prompt_color = :blue,
-         start_key=')',
-         mode_name="Expr_mode");
+initrepl(parse_to_expr, prompt_text="Expr> ", prompt_color = :blue, start_key=')', mode_name="Expr_mode");
 
 ) x + 1
 
@@ -30,11 +33,7 @@ function parse_to_expr(s)
     quote Meta.parse(\$s) end
 end
 
-mode = initrepl(parse_to_expr,
-         prompt_text="Expr> ",
-         prompt_color = :blue,
-         start_key=')',
-         mode_name="Expr_mode");
+mode = initrepl(parse_to_expr, prompt_text="Expr> ", prompt_color = :blue, start_key=')', mode_name="Expr_mode");
 
 enter_mode!(mode);
 x + 1
@@ -49,11 +48,7 @@ function parse_to_expr(s)
     quote Meta.parse(\$s) end
 end
 
-initrepl(parse_to_expr,
-         prompt_text="Expr> ",
-         prompt_color = :blue,
-         start_key="\\\\C-g",
-         mode_name="Expr_mode");
+initrepl(parse_to_expr, prompt_text="Expr> ", prompt_color = :blue, start_key="\\\\C-g", mode_name="Expr_mode");
 
 """*CTRL_G*""" x + 1
 
@@ -62,7 +57,7 @@ initrepl(parse_to_expr,
 function run_test(test_script)
     slave, master = open_fake_pty()
     # Start a julia process
-    p = run(`$(Base.julia_cmd()) --history-file=no --startup-file=no --compiled-modules=no`, slave, slave, slave; wait=false)
+    p = run(`$(Base.julia_cmd()) --history-file=no --startup-file=no`, slave, slave, slave; wait=false)
 
     # Read until the prompt
     readuntil(master, "julia>", keep=true)
@@ -110,4 +105,26 @@ end
 @testset "test opening REPL modes manually with Ctrl-g" begin
     out3 = run_test(test_script3);
     @test out3[end-5] == "\e[?2004h\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C\r\e[0K\e[34m\e[1mExpr> \e[0m\e[0m\r\e[6C\r\e[6C^C\r"
+end
+
+@testset "FunctionCompletionProvider" begin
+    commands = ["add", "remove", "resolve"]
+    provider = FunctionCompletionProvider() do before_cursor
+        filter(c -> startswith(c, before_cursor), commands), before_cursor
+    end
+
+    term = REPL.Terminals.TTYTerminal("dumb", stdin, stdout, stderr)
+    state = LineEdit.init_state(term, LineEdit.Prompt("test> "))
+
+    LineEdit.edit_insert(state, "re")
+    @test LineEdit.complete_line(provider, state) == (["remove", "resolve"], "re", true)
+
+    # Only the text before the cursor is passed to the completion function
+    LineEdit.edit_insert(state, "xyz")
+    LineEdit.edit_move_left(state); LineEdit.edit_move_left(state); LineEdit.edit_move_left(state)
+    @test LineEdit.complete_line(provider, state) == (["remove", "resolve"], "re", true)
+
+    LineEdit.edit_clear(LineEdit.buffer(state))
+    LineEdit.edit_insert(state, "zzz")
+    @test LineEdit.complete_line(provider, state) == (String[], "zzz", false)
 end
